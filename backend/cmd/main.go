@@ -1,41 +1,27 @@
 package main
 
 import (
+	"strconv"
+	"fmt"
+
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/liviaruegger/MAC0350/backend/internal/domain"
 )
 
-type profile struct {
-	ID         string     `json:"id"`
-	Name       string     `json:"name"`
-	Email      string     `json:"email"`
-	City       string     `json:"city"`
-	Phone      string     `json:"phone"`
-	Activities []activity `json:"activities"`
+var profiles = []domain.User{
+	{ID: 1, Name: "João da Silva", Email: "joao@example.com", City: "São Paulo", Phone: "(00) 0 0000-0000", Activities: activities_1},
+	{ID: 2, Name: "Maria Souza", Email: "maria@example.com", City: "Não-Me-Toque", Phone: "(00) 0 0000-0000", Activities: activities_2},
+	{ID: 3, Name: "Ana Costa", Email: "ana@example.com", City: "Vitória", Phone: "(00) 0 0000-0000", Activities: activities_3},
 }
 
-type activity struct {
-	ID       string    `json:"id"`
-	Distance string    `json:"distance"`
-	Start    time.Time `json:"start"`
-	Finish   time.Time `json:"finish"`
-	Size     time.Time `json:"size"`
-	Laps     int       `json:"laps"`
-}
+var activities_1 = []domain.Activity{}
 
-var profiles = []profile{
-	{ID: "1", Name: "João da Silva", Email: "joao@example.com", City: "São Paulo", Phone: "(00) 0 0000-0000", Activities: activities_1},
-	{ID: "2", Name: "Maria Souza", Email: "maria@example.com", City: "Não-Me-Toque", Phone: "(00) 0 0000-0000", Activities: activities_2},
-	{ID: "3", Name: "Ana Costa", Email: "ana@example.com", City: "Vitória", Phone: "(00) 0 0000-0000", Activities: activities_3},
-}
+var activities_2 = []domain.Activity{}
 
-var activities_1 = []activity{}
-
-var activities_2 = []activity{}
-
-var activities_3 = []activity{}
+var activities_3 = []domain.Activity{}
 
 func main() {
 	router := gin.Default()
@@ -51,7 +37,7 @@ func getProfiles(c *gin.Context) {
 }
 
 func postProfiles(c *gin.Context) {
-	var newProfile profile
+	var newProfile domain.User
 
 	if err := c.BindJSON(&newProfile); err != nil {
 		return
@@ -65,7 +51,12 @@ func getProfileByID(c *gin.Context) {
 	id := c.Param("id")
 
 	for _, a := range profiles {
-		if a.ID == id {
+		parsed, err := strconv.ParseUint(id, 10, 64)
+		if err != nil {
+			fmt.Println("Conversion error:", err)
+			return
+		}
+		if a.ID == uint(parsed) {
 			c.IndentedJSON(http.StatusOK, a)
 			return
 		}
