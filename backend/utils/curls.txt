@@ -1,0 +1,9 @@
+curl http://localhost:8080/users \
+    --include --header \
+    "Content-Type: application/json" \
+    --request "POST" --data \
+    '{"id": 4,"name": "Antônio", "email": "antonio@example.com", "city": "Teresina", "phone": "(00) 0 0000-0000", "activities": []}'
+
+curl http://localhost:8080/users
+
+curl http://localhost:8080/users/2
