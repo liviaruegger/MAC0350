@@ -1,44 +1,49 @@
 package handler
 
 import (
+	"github.com/liviaruegger/MAC0350/backend/internal/app"
 	"github.com/liviaruegger/MAC0350/backend/internal/domain"
-	"github.com/liviaruegger/MAC0350/backend/internal/repository"
 
 	"net/http"
 	"strconv"
-	"fmt"
 
 	"github.com/gin-gonic/gin"
 )
 
-func GetProfiles(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, repository.Profiles)
+type UserHandler struct {
+	service *app.UserService
 }
 
-func PostProfiles(c *gin.Context) {
-	var newProfile domain.User
-
-	if err := c.BindJSON(&newProfile); err != nil {
-		return
-	}
-
-	repository.Profiles = append(repository.Profiles, newProfile)
-	c.IndentedJSON(http.StatusCreated, newProfile)
+func NewUserHandler(s *app.UserService) *UserHandler {
+    return &UserHandler{service: s}
 }
 
-func GetProfileByID(c *gin.Context) {
-	id := c.Param("id")
+func (h *UserHandler) CreateUser(c *gin.Context) {
+    var newUser domain.User
+    if err := c.BindJSON(&newUser); err != nil {
+        return
+    }
 
-	for _, a := range repository.Profiles {
-		parsed, err := strconv.ParseUint(id, 10, 64)
-		if err != nil {
-			fmt.Println("Conversion error:", err)
-			return
-		}
-		if a.ID == uint(parsed) {
-			c.IndentedJSON(http.StatusOK, a)
-			return
-		}
-	}
-	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "profile not found"})
+    if err := h.service.CreateUser(newUser); err != nil {
+        c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    c.IndentedJSON(http.StatusCreated, newUser)
+}
+
+func (h *UserHandler) GetUserByID(c *gin.Context) {
+    id, err := strconv.Atoi(c.Param("id"))
+    if err != nil {
+        c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+        return
+    }
+
+    user, err := h.service.GetUserByID(id)
+    if err != nil {
+        c.IndentedJSON(http.StatusNotFound, gin.H{"error": "User not found"})
+        return
+    }
+
+    c.IndentedJSON(http.StatusOK, user)
 }

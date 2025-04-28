@@ -1,18 +1,26 @@
 package repository
 
 import (
-    // "database/sql"
+    "database/sql"
     "github.com/liviaruegger/MAC0350/backend/internal/domain"
 )
 
-var Profiles = []domain.User{
-	{ID: 1, Name: "João da Silva", Email: "joao@example.com", City: "São Paulo", Phone: "(00) 0 0000-0000", Activities: Activities_1},
-	{ID: 2, Name: "Maria Souza", Email: "maria@example.com", City: "Não-Me-Toque", Phone: "(00) 0 0000-0000", Activities: Activities_2},
-	{ID: 3, Name: "Ana Costa", Email: "ana@example.com", City: "Vitória", Phone: "(00) 0 0000-0000", Activities: Activities_3},
+type UserRepository struct {
+    db *sql.DB
 }
 
-var Activities_1 = []domain.Activity{}
+func NewUserRepository(db *sql.DB) *UserRepository {
+    return &UserRepository{db: db}
+}
 
-var Activities_2 = []domain.Activity{}
+func (r *UserRepository) CreateUser(user domain.User) error {
+    _, err := r.db.Exec("INSERT INTO users (name, email) VALUES ($1, $2)", user.Name, user.Email)
+    return err
+}
 
-var Activities_3 = []domain.Activity{}
+func (r *UserRepository) GetUserByID(id int) (domain.User, error) {
+    var user domain.User
+    row := r.db.QueryRow("SELECT id, name, email FROM users WHERE id = $1", id)
+    err := row.Scan(&user.ID, &user.Name, &user.Email)
+    return user, err
+}
