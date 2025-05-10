@@ -5,10 +5,11 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 
+COPY backend/utils/wait-for-it.sh /backend/utils/wait-for-it.sh
+RUN chmod +x /backend/utils/wait-for-it.sh
+
 COPY . .
 RUN go build -o main ./backend/cmd
-
-RUN echo "Arquivos em /app:" && ls -la /app
 
 EXPOSE 8080
 
