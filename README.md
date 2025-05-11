@@ -96,5 +96,11 @@ Para analisar a cobertura de testes, utilize a flag `-cover`:
 go test ./backend/... -cover
 ```
 
+## Outros comandos úteis
+Para atualizar as dependências Go (`go.mod` e `go.sum`):
+```
+go mod tidy
+```
+
 ---
 Este projeto está sendo desenvolvido para a disciplina MAC0350 - Introdução ao Desenvolvimento de Sistemas de Software (2025.1) do IME-USP.
