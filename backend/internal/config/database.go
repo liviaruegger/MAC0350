@@ -43,13 +43,26 @@ func createTables(db *sql.DB) {
 	activitiesTable := `
 	CREATE TABLE IF NOT EXISTS activities (
 		id SERIAL PRIMARY KEY,
-		user_id INTEGER NOT NULL REFERENCES users(id),
+		user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 		start TIMESTAMP NOT NULL,
-		duration BIGINT NOT NULL,           -- in seconds
+		duration BIGINT NOT NULL,
 		distance FLOAT NOT NULL,
 		laps INTEGER NOT NULL,
 		pool_size FLOAT NOT NULL,
-		location_type TEXT NOT NULL
+		location_type TEXT NOT NULL,
+		notes TEXT DEFAULT ''
+	);`
+
+	intervalsTable := `
+	CREATE TABLE IF NOT EXISTS intervals (
+		id SERIAL PRIMARY KEY,
+		activity_id INTEGER NOT NULL REFERENCES activities(id) ON DELETE CASCADE,
+		start_time TIMESTAMP NOT NULL,
+		duration BIGINT NOT NULL,
+		distance FLOAT NOT NULL,
+		type TEXT NOT NULL,
+		stroke TEXT NOT NULL,
+		notes TEXT DEFAULT ''
 	);`
 
 	if _, err := db.Exec(userTable); err != nil {
@@ -57,5 +70,8 @@ func createTables(db *sql.DB) {
 	}
 	if _, err := db.Exec(activitiesTable); err != nil {
 		log.Fatal("Error creating activities table:", err)
+	}
+	if _, err := db.Exec(intervalsTable); err != nil {
+		log.Fatal("Error creating intervals table:", err)
 	}
 }
