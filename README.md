@@ -41,7 +41,29 @@ MAC0350/
 ├── LICENSE
 └── README.md
 ```
-  
+
+A aplicação segue uma separação de responsabilidades em camadas, baseada nos princípios de clean architecture e nas convenções da linguagem Go, como descrito abaixo:
+
+### `internal/app/`
+#### Camada de regras de negócio (serviços)
+Esta camada contém a lógica de negócio da aplicação: toma decisões, valida dados, define o fluxo de operações entre as entidades e os repositórios.
+
+### `internal/config/`
+#### Configuração da aplicação
+Contém a configuração de serviços e dependências externas, como a conexão com o banco de dados.
+
+### `internal/domain/`
+#### Camada de domínio
+Definição das entidades que compõem o sistema (como User, Activity, Interval) e tipos auxiliares; essas estruturas representam os objetos "reais" com os quais a aplicação lida.
+
+### `internal/handler/`
+#### Camada de manipulação de requisições HTTP
+Responsável por receber as requisições HTTP, extrair os dados necessários e repassar essas informações para a camada de aplicação (serviços). Também é responsável por desenvolver uma resposta HTTP adequada.
+
+### `internal/repository/`
+#### Camada de persistência de dados
+Camada de abstração de acesso ao banco de dados: realiza operações de CRUD (Create, Read, Update, Delete) e cria interfaces para serem utilizadas pelos serviços da aplicação.
+
 ## Uso
 ### Pré-requisitos
 - Linux:
