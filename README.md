@@ -13,6 +13,34 @@ As funcionalidades incluídas, a princípio, serão:
 - Registro de atividades: cada atividade registrada poderá incluir título, data, local, distâncias (possibilitando discriminar por estilos), horário, duração total, esforço percebido e comentários;
 - Perfil com feed para compartilhamento de atividades;
 - Geração de resumo com estatísticas por período (semanal, mensal).
+
+## Organização do projeto
+```
+MAC0350/
+├── .gitignore
+├── backend/
+│   ├── cmd/
+│   │   └── main.go
+│   ├── internal/
+│   │   ├── app/
+│   │   │   └── user_service.go
+│   │   ├── config/
+│   │   │   └── database.go
+│   │   ├── domain/
+│   │   │   ├── activity.go
+│   │   │   └── user.go
+│   │   ├── handler/
+│   │   │   └── user_handler.go
+│   │   └── repository/
+│   │       ├── activity_repository.go
+│   │       └── user_repository.go
+│   └── utils/
+│       └── curls.txt
+├── go.mod
+├── go.sum
+├── LICENSE
+└── README.md
+```
   
 ## Uso
 ### Pré-requisitos
