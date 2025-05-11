@@ -1,6 +1,9 @@
 package domain
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 // IntervalType defines the kind of interval (e.g., swim, rest, drill)
 type IntervalType string
@@ -54,4 +57,27 @@ type Interval struct {
 	Type       IntervalType  `json:"type"`     // One of the predefined types
 	Stroke     StrokeType    `json:"stroke"`   // Type of swimming stroke
 	Notes      string        `json:"notes"`    // Optional notes like "felt strong", "used fins"
+}
+
+// PacePer100m returns the pace in seconds per 100 meters
+func (i Interval) PacePer100m() float64 {
+	if i.Type == IntervalRest || i.Distance == 0 {
+		return 0
+	}
+
+	return i.Duration.Seconds() / i.Distance * 100
+}
+
+// PaceFormatted returns the pace as a string in the format mm:ss per 100m;
+// If distance is 0, it returns "N/A"
+func (i Interval) PaceFormatted() string {
+	pace := i.PacePer100m()
+	if pace == 0 {
+		return "N/A"
+	}
+
+	minutes := int(pace) / 60
+	seconds := int(pace) % 60
+
+	return fmt.Sprintf("%02d:%02d", minutes, seconds)
 }
