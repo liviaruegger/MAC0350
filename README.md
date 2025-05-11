@@ -17,40 +17,55 @@ As funcionalidades incluídas, a princípio, serão:
 ## Organização do projeto
 ```
 MAC0350/
+├── .env
 ├── .gitignore
 ├── backend/
 │   ├── cmd/
 │   │   └── main.go
+│   ├── config/
+│   │   └── database.go
 │   ├── internal/
 │   │   ├── app/
+│   │   │   ├── user_service_test.go
 │   │   │   └── user_service.go
-│   │   ├── config/
-│   │   │   └── database.go
 │   │   ├── domain/
+│   │   │   ├── activity_test.go
 │   │   │   ├── activity.go
+│   │   │   ├── interval_test.go
+│   │   │   ├── interval.go
 │   │   │   └── user.go
 │   │   ├── handler/
 │   │   │   └── user_handler.go
 │   │   └── repository/
+│   │       ├── activity_repository_test.go
 │   │       ├── activity_repository.go
+│   │       ├── interval_repository_test.go
+│   │       ├── interval_repository.go
+│   │       ├── user_repository_test.go
 │   │       └── user_repository.go
 │   └── utils/
-│       └── curls.txt
+│       ├── curls.txt
+│       └── wait-for-it.sh
+├── docker-compose.yml
+├── Dockerfile
 ├── go.mod
 ├── go.sum
 ├── LICENSE
+├── Makefile
 └── README.md
+
 ```
+A árvore acima foi gerada utilizando [esta ferramenta](https://project-tree-generator.netlify.app/generate-tree).
 
 A aplicação segue uma separação de responsabilidades em camadas, baseada nos princípios de clean architecture e nas convenções da linguagem Go, como descrito abaixo:
+
+### `config/`
+#### Configuração da aplicação
+Contém a configuração de serviços e dependências externas, como a conexão com o banco de dados.
 
 ### `internal/app/`
 #### Camada de regras de negócio (serviços)
 Esta camada contém a lógica de negócio da aplicação: toma decisões, valida dados, define o fluxo de operações entre as entidades e os repositórios.
-
-### `internal/config/`
-#### Configuração da aplicação
-Contém a configuração de serviços e dependências externas, como a conexão com o banco de dados.
 
 ### `internal/domain/`
 #### Camada de domínio
