@@ -42,5 +42,27 @@ MAC0350/
 └── README.md
 ```
   
+## Uso
+### Pré-requisitos
+- Linux:
+    - [Docker Engine](https://docs.docker.com/engine/install/)
+    - [Docker Compose](https://docs.docker.com/compose/install/)
+
+### Rodando
+O container pode ser construído e rodado com
+```
+docker-compose up --build
+```
+
+### Comandos úteis
+#### Apagar o container e seus volumes
+```
+docker-compose down -v
+```
+#### Construir o container do zero
+```
+docker-compose up build --no-cache
+```
+
 ---
 Este projeto está sendo desenvolvido para a disciplina MAC0350 - Introdução ao Desenvolvimento de Sistemas de Software (2025.1) do IME-USP.

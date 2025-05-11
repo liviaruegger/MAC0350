@@ -20,5 +20,5 @@ func main() {
 	router.GET("/users/:id", userHandler.GetUserByID)
 	router.POST("/users", userHandler.CreateUser)
 
-	router.Run("localhost:8080")
+	router.Run(":8080")
 }
