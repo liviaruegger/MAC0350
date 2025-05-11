@@ -25,6 +25,25 @@ const (
 	IntervalCoolDown IntervalType = "cooldown"
 )
 
+// StrokeType defines the style of swimming stroke used
+type StrokeType string
+
+// Predefined stroke types
+const (
+	// StrokeFreestyle represents front crawl
+	StrokeFreestyle StrokeType = "freestyle"
+	// StrokeBackstroke represents backstroke
+	StrokeBackstroke StrokeType = "backstroke"
+	// StrokeBreaststroke represents breaststroke
+	StrokeBreaststroke StrokeType = "breaststroke"
+	// StrokeButterfly represents butterfly stroke
+	StrokeButterfly StrokeType = "butterfly"
+	// StrokeMedley represents individual medley (IM)
+	StrokeMedley StrokeType = "medley"
+	// StrokeUnknown is used when the stroke is not specified
+	StrokeUnknown StrokeType = "unknown"
+)
+
 // Interval represents a single segment of a swim session
 type Interval struct {
 	ID         uint          `json:"id"`
@@ -33,5 +52,6 @@ type Interval struct {
 	Duration   time.Duration `json:"duration"` // Duration of the interval
 	Distance   float64       `json:"distance"` // Distance in meters
 	Type       IntervalType  `json:"type"`     // One of the predefined types
+	Stroke     StrokeType    `json:"stroke"`   // Type of swimming stroke
 	Notes      string        `json:"notes"`    // Optional notes like "felt strong", "used fins"
 }
