@@ -64,7 +64,7 @@ Responsável por receber as requisições HTTP, extrair os dados necessários e 
 #### Camada de persistência de dados
 Camada de abstração de acesso ao banco de dados: realiza operações de CRUD (Create, Read, Update, Delete) e cria interfaces para serem utilizadas pelos serviços da aplicação.
 
-## Uso
+## Como executar
 ### Pré-requisitos
 - Linux:
     - [Docker Engine](https://docs.docker.com/engine/install/)
@@ -84,6 +84,16 @@ docker-compose down -v
 #### Construir o container do zero
 ```
 docker-compose up build --no-cache
+```
+
+## Como testar
+Para rodar todos os testes do backend, use o comando
+```
+go test ./backend/...
+```
+Para analisar a cobertura de testes, utilize a flag `-cover`:
+```
+go test ./backend/... -cover
 ```
 
 ---
