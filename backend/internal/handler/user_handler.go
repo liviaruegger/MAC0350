@@ -11,39 +11,39 @@ import (
 )
 
 type UserHandler struct {
-	service *app.UserService
+	service app.UserService
 }
 
-func NewUserHandler(s *app.UserService) *UserHandler {
-    return &UserHandler{service: s}
+func NewUserHandler(s app.UserService) *UserHandler {
+	return &UserHandler{service: s}
 }
 
 func (h *UserHandler) CreateUser(c *gin.Context) {
-    var newUser domain.User
-    if err := c.BindJSON(&newUser); err != nil {
-        return
-    }
+	var newUser domain.User
+	if err := c.BindJSON(&newUser); err != nil {
+		return
+	}
 
-    if err := h.service.CreateUser(newUser); err != nil {
-        c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-        return
-    }
+	if err := h.service.CreateUser(newUser); err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Service error"})
+		return
+	}
 
-    c.IndentedJSON(http.StatusCreated, newUser)
+	c.IndentedJSON(http.StatusCreated, newUser)
 }
 
 func (h *UserHandler) GetUserByID(c *gin.Context) {
-    id, err := strconv.Atoi(c.Param("id"))
-    if err != nil {
-        c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-        return
-    }
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
 
-    user, err := h.service.GetUserByID(id)
-    if err != nil {
-        c.IndentedJSON(http.StatusNotFound, gin.H{"error": "User not found"})
-        return
-    }
+	user, err := h.service.GetUserByID(id)
+	if err != nil {
+		c.IndentedJSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
 
-    c.IndentedJSON(http.StatusOK, user)
+	c.IndentedJSON(http.StatusOK, user)
 }
