@@ -7,3 +7,16 @@ curl http://localhost:8080/users \
 curl http://localhost:8080/users
 
 curl http://localhost:8080/users/2
+
+curl -X POST http://localhost:8080/intervals \
+  -H "Content-Type: application/json" \
+  -d '{
+    "id": 1,
+    "activity_id": 1,
+    "start_time": "2024-06-01T10:00:00Z",
+    "duration": "1800s",
+    "distance": 1000,
+    "type": "swim",
+    "stroke": "freestyle",
+    "notes": "Felt strong"
+  }'
