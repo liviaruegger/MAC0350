@@ -1,4 +1,3 @@
-// main.go
 package main
 
 import (
@@ -16,9 +15,18 @@ func SetupRouter() *gin.Engine {
 	userService := app.NewUserService(userRepo)
 	userHandler := handler.NewUserHandler(userService)
 
+	intervalRepo := repository.NewIntervalRepository(db)
+	intervalService := app.NewIntervalService(intervalRepo)
+	intervalHandler := handler.NewIntervalHandler(intervalService)
+
 	router := gin.Default()
+
+	// User routes
 	router.GET("/users/:id", userHandler.GetUserByID)
 	router.POST("/users", userHandler.CreateUser)
+
+	// Interval routes
+	router.POST("/intervals", intervalHandler.CreateInterval)
 
 	return router
 }

@@ -1,10 +1,9 @@
-package app_test
+package app
 
 import (
 	"errors"
 	"testing"
 
-	"github.com/liviaruegger/MAC0350/backend/internal/app"
 	"github.com/liviaruegger/MAC0350/backend/internal/domain"
 )
 
@@ -31,7 +30,7 @@ func (m *mockUserRepo) GetUserByID(id int) (domain.User, error) {
 
 func TestUserService(t *testing.T) {
 	repo := &mockUserRepo{users: make(map[int]domain.User)}
-	service := app.NewUserService(repo)
+	service := NewUserService(repo)
 
 	user := domain.User{
 		ID:    1,
