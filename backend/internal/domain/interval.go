@@ -49,14 +49,21 @@ const (
 
 // Interval represents a single segment of a swim session
 type Interval struct {
-	ID         uint          `json:"id"`
-	ActivityID uint          `json:"activity_id"` // Foreign key to the swim activity/session
-	StartTime  time.Time     `json:"start_time"`
-	Duration   time.Duration `json:"duration"` // Duration of the interval
-	Distance   float64       `json:"distance"` // Distance in meters
-	Type       IntervalType  `json:"type"`     // One of the predefined types
-	Stroke     StrokeType    `json:"stroke"`   // Type of swimming stroke
-	Notes      string        `json:"notes"`    // Optional notes like "felt strong", "used fins"
+	ID uint `json:"id"`
+	// Foreign key to the swim activity/session
+	ActivityID uint `json:"activity_id"`
+	// Start time of the interval
+	StartTime time.Time `json:"start_time"`
+	// Duration of the interval in string format, e.g., "1h30m"
+	Duration DurationString `json:"duration"`
+	// Distance in meters
+	Distance float64 `json:"distance"`
+	// One of the predefined types
+	Type IntervalType `json:"type"`
+	// Type of swimming stroke
+	Stroke StrokeType `json:"stroke"`
+	// Optional notes like "felt strong", "used fins"
+	Notes string `json:"notes"`
 }
 
 // PacePer100m returns the pace in seconds per 100 meters

@@ -86,30 +86,32 @@ Camada de abstração de acesso ao banco de dados: realiza operações de CRUD (
     - [Docker Compose](https://docs.docker.com/compose/install/)
 
 ### Rodando
-O container pode ser construído e rodado com
+Para construir o container e rodar o projeto:
 ```
-docker-compose up --build
+make run
 ```
-
-### Comandos úteis
-#### Apagar o container e seus volumes
+Para apagar o container e seus volumes:
 ```
-docker-compose down -v
-```
-#### Construir o container do zero
-```
-docker-compose up build --no-cache
+make docker-down
 ```
 
 ## Como testar
-Para rodar todos os testes do backend, use o comando
+### Backend
+Para rodar todos os testes do backend:
 ```
-go test ./backend/...
+make test
 ```
-Para analisar a cobertura de testes, utilize a flag `-cover`:
+Para analisar a cobertura de testes:
 ```
-go test ./backend/... -cover
+make coverage
 ```
+Para gerar um relatório detalhando a cobertura de testes em cada arquivo:
+```
+make test-report
+```
+
+### API
+Para testar a API, execute o projeto com `make run` e acesse a [UI do Swagger](http://localhost:8080/swagger/index.html).
 
 ## Outros comandos úteis
 Para atualizar as dependências Go (`go.mod` e `go.sum`):

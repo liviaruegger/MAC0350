@@ -21,7 +21,7 @@ func TestPostgresIntervalRepository_Create(t *testing.T) {
 	interval := domain.Interval{
 		ActivityID: 1,
 		StartTime:  time.Now(),
-		Duration:   time.Minute * 30,
+		Duration:   domain.DurationString((time.Minute * 30).String()),
 		Distance:   1000,
 		Type:       "swim",
 		Stroke:     "freestyle",

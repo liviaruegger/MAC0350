@@ -44,7 +44,7 @@ func TestCreateInterval(t *testing.T) {
 				ID:         1,
 				ActivityID: 1,
 				StartTime:  time.Date(2024, 6, 1, 10, 0, 0, 0, time.UTC),
-				Duration:   time.Duration(30 * time.Minute),
+				Duration:   domain.DurationString((30 * time.Minute).String()),
 				Distance:   1000,
 				Type:       domain.IntervalType("swim"),
 				Stroke:     domain.StrokeType("freestyle"),

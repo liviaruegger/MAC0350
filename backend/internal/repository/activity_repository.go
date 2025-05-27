@@ -37,6 +37,7 @@ func (r *PostgresActivityRepository) Create(activity domain.Activity) error {
 		activity.PoolSize,
 		string(activity.LocationType),
 	)
+
 	return err
 }
 
@@ -70,7 +71,7 @@ func (r *PostgresActivityRepository) GetAll() ([]domain.Activity, error) {
 			return nil, err
 		}
 
-		a.Duration = time.Duration(durationSeconds) * time.Second
+		a.Duration = domain.DurationString((time.Duration(durationSeconds) * time.Second).String())
 		a.LocationType = domain.LocationType(locationType)
 
 		activities = append(activities, a)
@@ -111,7 +112,7 @@ func (r *PostgresActivityRepository) GetAllByUser(userID int) ([]domain.Activity
 			return nil, err
 		}
 
-		a.Duration = time.Duration(durationSeconds) * time.Second
+		a.Duration = domain.DurationString((time.Duration(durationSeconds) * time.Second).String())
 		a.LocationType = domain.LocationType(locationType)
 
 		activities = append(activities, a)
