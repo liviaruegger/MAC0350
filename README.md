@@ -81,9 +81,20 @@ Camada de abstração de acesso ao banco de dados: realiza operações de CRUD (
 
 ## Como executar
 ### Pré-requisitos
+#### Docker
 - Linux:
     - [Docker Engine](https://docs.docker.com/engine/install/)
     - [Docker Compose](https://docs.docker.com/compose/install/)
+
+#### Swag
+Para testar a API utilizando a UI do Swagger, instale utilizando o comando: 
+```
+go install github.com/swaggo/swag/cmd/swag@latest
+```
+Se necessário, exporte o path:
+```
+export PATH=$PATH:$HOME/go/bin
+```
 
 ### Rodando
 Para construir o container e rodar o projeto:

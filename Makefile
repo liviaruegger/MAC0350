@@ -12,6 +12,10 @@ docker-build:
 docker-down:
 	docker-compose down -v
 
+docker-clean:
+	docker-compose down --volumes --remove-orphans
+	docker system prune --all --volumes --force
+
 test:
 	go test ./backend/...
 
