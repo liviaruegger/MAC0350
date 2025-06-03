@@ -6,7 +6,18 @@ import (
 	"github.com/liviaruegger/MAC0350/backend/internal/app"
 	"github.com/liviaruegger/MAC0350/backend/internal/handler"
 	"github.com/liviaruegger/MAC0350/backend/internal/repository"
+
+	// Swagger imports
+	_ "github.com/liviaruegger/MAC0350/docs"
+	swaggerfiles "github.com/swaggo/files"
+	ginswagger "github.com/swaggo/gin-swagger"
 )
+
+// @title           Swim Tracker API
+// @version         1.0
+// @description     This is an API for tracking swimming
+// @host            localhost:8080
+// @BasePath        /
 
 func SetupRouter() *gin.Engine {
 	db := config.SetupDatabase()
@@ -20,6 +31,9 @@ func SetupRouter() *gin.Engine {
 	intervalHandler := handler.NewIntervalHandler(intervalService)
 
 	router := gin.Default()
+
+	// Swagger route
+	router.GET("/swagger/*any", ginswagger.WrapHandler(swaggerfiles.Handler))
 
 	// User routes
 	router.GET("/users/:id", userHandler.GetUserByID)

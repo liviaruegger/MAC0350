@@ -18,30 +18,53 @@ func NewUserHandler(s app.UserService) *UserHandler {
 	return &UserHandler{service: s}
 }
 
+// CreateUser godoc
+// @Summary Create a new user
+// @Description Creates a user with the data provided in the request body
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param user body domain.User true "User data"
+// @Success 201 {object} domain.User "User successfully created"
+// @Failure 400 {object} ErrorResponse "Invalid input"
+// @Failure 500 {object} ErrorResponse "Internal server error"
+// @Router /users [post]
 func (h *UserHandler) CreateUser(c *gin.Context) {
 	var newUser domain.User
 	if err := c.BindJSON(&newUser); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, ErrorResponse{Error: "Invalid JSON"})
 		return
 	}
 
 	if err := h.service.CreateUser(newUser); err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Service error"})
+		c.IndentedJSON(http.StatusInternalServerError, ErrorResponse{Error: "Service error"})
 		return
 	}
 
 	c.IndentedJSON(http.StatusCreated, newUser)
 }
 
+// GetUserByID godoc
+// @Summary Get user by ID
+// @Description Returns the user data for the specified ID
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param id path int true "User ID"
+// @Success 200 {object} domain.User "User found"
+// @Failure 400 {object} ErrorResponse "Invalid user ID"
+// @Failure 404 {object} ErrorResponse "User not found"
+// @Router /users/{id} [get]
 func (h *UserHandler) GetUserByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		c.IndentedJSON(http.StatusBadRequest, ErrorResponse{Error: "Invalid user ID"})
 		return
 	}
 
 	user, err := h.service.GetUserByID(id)
 	if err != nil {
-		c.IndentedJSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		c.IndentedJSON(http.StatusNotFound, ErrorResponse{Error: "User not found"})
 		return
 	}
 

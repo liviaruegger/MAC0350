@@ -14,7 +14,7 @@ func TestPacePer100m(t *testing.T) {
 		{
 			name: "Valid swim interval",
 			interval: Interval{
-				Duration: 120 * time.Second,
+				Duration: DurationString((120 * time.Second).String()),
 				Distance: 100,
 				Type:     IntervalSwim,
 			},
@@ -23,7 +23,7 @@ func TestPacePer100m(t *testing.T) {
 		{
 			name: "Rest interval",
 			interval: Interval{
-				Duration: 60 * time.Second,
+				Duration: DurationString((60 * time.Second).String()),
 				Distance: 0,
 				Type:     IntervalRest,
 			},
@@ -32,7 +32,7 @@ func TestPacePer100m(t *testing.T) {
 		{
 			name: "Zero distance",
 			interval: Interval{
-				Duration: 60 * time.Second,
+				Duration: DurationString((60 * time.Second).String()),
 				Distance: 0,
 				Type:     IntervalSwim,
 			},
@@ -59,7 +59,7 @@ func TestPaceFormatted(t *testing.T) {
 		{
 			name: "Valid swim interval",
 			interval: Interval{
-				Duration: 125 * time.Second,
+				Duration: DurationString((125 * time.Second).String()),
 				Distance: 100,
 				Type:     IntervalSwim,
 			},
@@ -68,7 +68,7 @@ func TestPaceFormatted(t *testing.T) {
 		{
 			name: "Rest interval",
 			interval: Interval{
-				Duration: 60 * time.Second,
+				Duration: DurationString((60 * time.Second).String()),
 				Distance: 0,
 				Type:     IntervalRest,
 			},
@@ -77,7 +77,7 @@ func TestPaceFormatted(t *testing.T) {
 		{
 			name: "Zero distance",
 			interval: Interval{
-				Duration: 60 * time.Second,
+				Duration: DurationString((60 * time.Second).String()),
 				Distance: 0,
 				Type:     IntervalSwim,
 			},

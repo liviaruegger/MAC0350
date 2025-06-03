@@ -14,15 +14,15 @@ func TestAvgPacePer100m(t *testing.T) {
 		{
 			name: "Valid distance and duration",
 			activity: Activity{
-				Duration: time.Duration(1500) * time.Second, // 25 minutes
-				Distance: 1000,                              // 1 km
+				Duration: DurationString((time.Duration(1500) * time.Second).String()), // 25 minutes
+				Distance: 1000,                                                         // 1 km
 			},
 			expected: 150, // 150 seconds per 100m
 		},
 		{
 			name: "Zero distance",
 			activity: Activity{
-				Duration: time.Duration(1500) * time.Second,
+				Duration: DurationString((time.Duration(1500) * time.Second).String()),
 				Distance: 0,
 			},
 			expected: 0,
@@ -30,7 +30,7 @@ func TestAvgPacePer100m(t *testing.T) {
 		{
 			name: "Zero duration",
 			activity: Activity{
-				Duration: 0,
+				Duration: DurationString((0 * time.Second).String()),
 				Distance: 1000,
 			},
 			expected: 0,
@@ -56,15 +56,15 @@ func TestAvgPaceFormatted(t *testing.T) {
 		{
 			name: "Valid distance and duration",
 			activity: Activity{
-				Duration: time.Duration(1500) * time.Second, // 25 minutes
-				Distance: 1000,                              // 1 km
+				Duration: DurationString((time.Duration(1500) * time.Second).String()), // 25 minutes
+				Distance: 1000,                                                         // 1 km
 			},
 			expected: "02:30", // 2 minutes 30 seconds per 100m
 		},
 		{
 			name: "Zero distance",
 			activity: Activity{
-				Duration: time.Duration(1500) * time.Second,
+				Duration: DurationString((time.Duration(1500) * time.Second).String()),
 				Distance: 0,
 			},
 			expected: "N/A",
@@ -72,7 +72,7 @@ func TestAvgPaceFormatted(t *testing.T) {
 		{
 			name: "Zero duration",
 			activity: Activity{
-				Duration: 0,
+				Duration: DurationString((0 * time.Second).String()),
 				Distance: 1000,
 			},
 			expected: "N/A",

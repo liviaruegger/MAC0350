@@ -16,31 +16,48 @@ func TestCreateActivity(t *testing.T) {
 
 	repo := NewActivityRepository(db)
 
-	activity := domain.Activity{
-		UserID:       1,
-		Start:        time.Now(),
-		Duration:     30 * time.Minute,
-		Distance:     1000,
-		Laps:         20,
-		PoolSize:     50,
-		LocationType: domain.LocationType("indoor"),
-	}
+	t.Run("success", func(t *testing.T) {
+		activity := domain.Activity{
+			UserID:       1,
+			Start:        time.Now(),
+			Duration:     domain.DurationString((30 * time.Minute).String()),
+			Distance:     1000,
+			Laps:         20,
+			PoolSize:     50,
+			LocationType: domain.LocationType(domain.LocationPool),
+		}
 
-	mock.ExpectExec(`INSERT INTO activities`).
-		WithArgs(
-			activity.UserID,
-			activity.Start,
-			int64(activity.Duration.Seconds()),
-			activity.Distance,
-			activity.Laps,
-			activity.PoolSize,
-			string(activity.LocationType),
-		).
-		WillReturnResult(sqlmock.NewResult(1, 1))
+		mock.ExpectExec(`INSERT INTO activities`).
+			WithArgs(
+				activity.UserID,
+				activity.Start,
+				int64(activity.Duration.Seconds()),
+				activity.Distance,
+				activity.Laps,
+				activity.PoolSize,
+				string(activity.LocationType),
+			).
+			WillReturnResult(sqlmock.NewResult(1, 1))
 
-	err = repo.Create(activity)
-	assert.NoError(t, err)
-	assert.NoError(t, mock.ExpectationsWereMet())
+		err := repo.Create(activity)
+		assert.NoError(t, err)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("invalid duration string", func(t *testing.T) {
+		activity := domain.Activity{
+			UserID:       1,
+			Start:        time.Now(),
+			Duration:     domain.DurationString("invalid-duration"),
+			Distance:     1000,
+			Laps:         20,
+			PoolSize:     50,
+			LocationType: domain.LocationType(domain.LocationPool),
+		}
+
+		err := repo.Create(activity)
+		assert.Error(t, err)
+	})
 }
 
 func TestGetAllActivities(t *testing.T) {
