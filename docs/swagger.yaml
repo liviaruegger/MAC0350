@@ -139,6 +139,36 @@ info:
   title: Swim Tracker API
   version: "1.0"
 paths:
+  /intervals:
+    post:
+      consumes:
+      - application/json
+      description: Creates an interval with the data provided in the request body
+      parameters:
+      - description: Interval data
+        in: body
+        name: interval
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Interval'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Interval successfully created
+          schema:
+            $ref: '#/definitions/domain.Interval'
+        "400":
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Create a new interval
+      tags:
+      - intervals
   /users:
     post:
       consumes:

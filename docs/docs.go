@@ -15,6 +15,52 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/intervals": {
+            "post": {
+                "description": "Creates an interval with the data provided in the request body",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "intervals"
+                ],
+                "summary": "Create a new interval",
+                "parameters": [
+                    {
+                        "description": "Interval data",
+                        "name": "interval",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Interval"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Interval successfully created",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Interval"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users": {
             "post": {
                 "description": "Creates a user with the data provided in the request body",

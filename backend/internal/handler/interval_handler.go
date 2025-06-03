@@ -17,6 +17,17 @@ func NewIntervalHandler(s app.IntervalService) *IntervalHandler {
 	return &IntervalHandler{service: s}
 }
 
+// CreateInterval godoc
+// @Summary Create a new interval
+// @Description Creates an interval with the data provided in the request body
+// @Tags intervals
+// @Accept json
+// @Produce json
+// @Param interval body domain.Interval true "Interval data"
+// @Success 201 {object} domain.Interval "Interval successfully created"
+// @Failure 400 {object} ErrorResponse "Invalid input"
+// @Failure 500 {object} ErrorResponse "Internal server error"
+// @Router /intervals [post]
 func (h *IntervalHandler) CreateInterval(c *gin.Context) {
 	var newInterval domain.Interval
 	if err := c.BindJSON(&newInterval); err != nil {
