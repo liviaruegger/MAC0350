@@ -26,15 +26,23 @@ MAC0350/
 │   │   └── database.go
 │   ├── internal/
 │   │   ├── app/
+│   │   │   ├── interval_service_test.go
+│   │   │   ├── interval_service.go
 │   │   │   ├── user_service_test.go
 │   │   │   └── user_service.go
 │   │   ├── domain/
 │   │   │   ├── activity_test.go
 │   │   │   ├── activity.go
+│   │   │   ├── duration_test.go
+│   │   │   ├── duration.go
 │   │   │   ├── interval_test.go
 │   │   │   ├── interval.go
 │   │   │   └── user.go
 │   │   ├── handler/
+│   │   │   ├── interval_handler_test.go
+│   │   │   ├── interval_handler.go
+│   │   │   ├── response.go
+│   │   │   ├── user_handler_test.go
 │   │   │   └── user_handler.go
 │   │   └── repository/
 │   │       ├── activity_repository_test.go
@@ -48,35 +56,33 @@ MAC0350/
 │       └── wait-for-it.sh
 ├── docker-compose.yml
 ├── Dockerfile
+├── docs/
+│   ├── docs.go
+│   ├── swagger.json
+│   └── swagger.yaml
 ├── go.mod
 ├── go.sum
 ├── LICENSE
 ├── Makefile
 └── README.md
-
 ```
 A árvore acima foi gerada utilizando [esta ferramenta](https://project-tree-generator.netlify.app/generate-tree).
 
 A aplicação segue uma separação de responsabilidades em camadas, baseada nos princípios de clean architecture e nas convenções da linguagem Go, como descrito abaixo:
 
-### `config/`
-#### Configuração da aplicação
+### `config/` — Configuração da aplicação
 Contém a configuração de serviços e dependências externas, como a conexão com o banco de dados.
 
-### `internal/app/`
-#### Camada de regras de negócio (serviços)
+### `internal/app/` — Camada de regras de negócio (serviços)
 Esta camada contém a lógica de negócio da aplicação: toma decisões, valida dados, define o fluxo de operações entre as entidades e os repositórios.
 
-### `internal/domain/`
-#### Camada de domínio
+### `internal/domain/` — Camada de domínio
 Definição das entidades que compõem o sistema (como User, Activity, Interval) e tipos auxiliares; essas estruturas representam os objetos "reais" com os quais a aplicação lida.
 
-### `internal/handler/`
-#### Camada de manipulação de requisições HTTP
+### `internal/handler/` — Camada de manipulação de requisições HTTP
 Responsável por receber as requisições HTTP, extrair os dados necessários e repassar essas informações para a camada de aplicação (serviços). Também é responsável por desenvolver uma resposta HTTP adequada.
 
-### `internal/repository/`
-#### Camada de persistência de dados
+### `internal/repository/` — Camada de persistência de dados
 Camada de abstração de acesso ao banco de dados: realiza operações de CRUD (Create, Read, Update, Delete) e cria interfaces para serem utilizadas pelos serviços da aplicação.
 
 ## Como executar
@@ -88,11 +94,11 @@ Camada de abstração de acesso ao banco de dados: realiza operações de CRUD (
 
 #### Swag
 Para testar a API utilizando a UI do Swagger, instale utilizando o comando: 
-```
+``` bash
 go install github.com/swaggo/swag/cmd/swag@latest
 ```
 Se necessário, exporte o path:
-```
+``` bash
 export PATH=$PATH:$HOME/go/bin
 ```
 
