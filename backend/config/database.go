@@ -37,7 +37,9 @@ func createTables(db *sql.DB) {
 	CREATE TABLE IF NOT EXISTS users (
 		id SERIAL PRIMARY KEY,
 		name TEXT NOT NULL,
-		email TEXT UNIQUE NOT NULL
+		email TEXT UNIQUE NOT NULL,
+		city TEXT NOT NULL,
+		phone TEXT NOT NULL
 	);`
 
 	activitiesTable := `
@@ -49,7 +51,7 @@ func createTables(db *sql.DB) {
 		distance FLOAT NOT NULL,
 		laps INTEGER NOT NULL,
 		pool_size FLOAT NOT NULL,
-		location_type TEXT NOT NULL,
+		location_type TEXT NOT NULL CHECK (location_type IN ('pool', 'open_water')),
 		notes TEXT DEFAULT ''
 	);`
 
@@ -60,8 +62,18 @@ func createTables(db *sql.DB) {
 		start_time TIMESTAMP NOT NULL,
 		duration BIGINT NOT NULL,
 		distance FLOAT NOT NULL,
-		type TEXT NOT NULL,
-		stroke TEXT NOT NULL,
+		type TEXT NOT NULL CHECK (
+			type IN (
+				'swim', 'rest', 'drill', 'kick', 'pull',
+				'warmup', 'main_set', 'cooldown'
+			)
+		),
+		stroke TEXT NOT NULL CHECK (
+			stroke IN (
+				'freestyle', 'backstroke', 'breaststroke',
+				'butterfly', 'medley', 'unknown'
+			)
+		),
 		notes TEXT DEFAULT ''
 	);`
 

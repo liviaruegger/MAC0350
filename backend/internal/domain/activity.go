@@ -31,8 +31,6 @@ type Activity struct {
 	PoolSize float64 `json:"pool_size"`
 	// "pool" or "open_water"
 	LocationType LocationType `json:"location_type"`
-	// Breakdown of the swim into segments
-	Intervals []Interval `json:"intervals"`
 	// Optional notes
 	Notes string `json:"notes"`
 }

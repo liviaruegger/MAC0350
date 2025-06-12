@@ -18,10 +18,12 @@ func TestCreateUser(t *testing.T) {
 	user := domain.User{
 		Name:  "John Doe",
 		Email: "john.doe@example.com",
+		City:  "São Paulo",
+		Phone: "+5511999999999",
 	}
 
 	mock.ExpectExec("INSERT INTO users").
-		WithArgs(user.Name, user.Email).
+		WithArgs(user.Name, user.Email, user.City, user.Phone).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	err = repo.CreateUser(user)
@@ -40,12 +42,14 @@ func TestGetUserByID(t *testing.T) {
 		ID:    1,
 		Name:  "John Doe",
 		Email: "john.doe@example.com",
+		City:  "São Paulo",
+		Phone: "+5511999999999",
 	}
 
-	rows := sqlmock.NewRows([]string{"id", "name", "email"}).
-		AddRow(expectedUser.ID, expectedUser.Name, expectedUser.Email)
+	rows := sqlmock.NewRows([]string{"id", "name", "email", "city", "phone"}).
+		AddRow(expectedUser.ID, expectedUser.Name, expectedUser.Email, expectedUser.City, expectedUser.Phone)
 
-	mock.ExpectQuery("SELECT id, name, email FROM users WHERE id = \\$1").
+	mock.ExpectQuery("SELECT id, name, email, city, phone FROM users WHERE id = \\$1").
 		WithArgs(expectedUser.ID).
 		WillReturnRows(rows)
 
