@@ -1,40 +1,5 @@
 basePath: /
 definitions:
-  domain.Activity:
-    properties:
-      distance:
-        description: Total distance in meters
-        type: number
-      duration:
-        description: Duration of the activity in string format, e.g., "1h30m"
-        type: string
-      id:
-        type: integer
-      intervals:
-        description: Breakdown of the swim into segments
-        items:
-          $ref: '#/definitions/domain.Interval'
-        type: array
-      laps:
-        description: Number of pool laps
-        type: integer
-      location_type:
-        allOf:
-        - $ref: '#/definitions/domain.LocationType'
-        description: '"pool" or "open_water"'
-      notes:
-        description: Optional notes
-        type: string
-      pool_size:
-        description: Pool length in meters (0 if open water)
-        type: number
-      start:
-        description: Start time of the activity
-        type: string
-      user_id:
-        description: UserID is the ID of the user who performed the activity
-        type: integer
-    type: object
   domain.Interval:
     properties:
       activity_id:
@@ -83,14 +48,6 @@ definitions:
     - IntervalWarmUp
     - IntervalMainSet
     - IntervalCoolDown
-  domain.LocationType:
-    enum:
-    - pool
-    - open_water
-    type: string
-    x-enum-varnames:
-    - LocationPool
-    - LocationOpenWater
   domain.StrokeType:
     enum:
     - freestyle
@@ -109,10 +66,6 @@ definitions:
     - StrokeUnknown
   domain.User:
     properties:
-      activities:
-        items:
-          $ref: '#/definitions/domain.Activity'
-        type: array
       city:
         type: string
       email:
@@ -173,9 +126,9 @@ paths:
     post:
       consumes:
       - application/json
-      description: Creates a user with the data provided in the request body
+      description: Creates a user with the provided name, email, city, and phone
       parameters:
-      - description: User data
+      - description: User data.
         in: body
         name: user
         required: true
@@ -203,7 +156,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: Returns the user data for the specified ID
+      description: Returns the user with name, email, city, and phone for the specified
+        ID
       parameters:
       - description: User ID
         in: path

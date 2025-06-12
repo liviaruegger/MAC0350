@@ -63,7 +63,7 @@ const docTemplate = `{
         },
         "/users": {
             "post": {
-                "description": "Creates a user with the data provided in the request body",
+                "description": "Creates a user with the provided name, email, city, and phone",
                 "consumes": [
                     "application/json"
                 ],
@@ -76,7 +76,7 @@ const docTemplate = `{
                 "summary": "Create a new user",
                 "parameters": [
                     {
-                        "description": "User data",
+                        "description": "User data.",
                         "name": "user",
                         "in": "body",
                         "required": true,
@@ -109,7 +109,7 @@ const docTemplate = `{
         },
         "/users/{id}": {
             "get": {
-                "description": "Returns the user data for the specified ID",
+                "description": "Returns the user with name, email, city, and phone for the specified ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -153,57 +153,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "domain.Activity": {
-            "type": "object",
-            "properties": {
-                "distance": {
-                    "description": "Total distance in meters",
-                    "type": "number"
-                },
-                "duration": {
-                    "description": "Duration of the activity in string format, e.g., \"1h30m\"",
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "intervals": {
-                    "description": "Breakdown of the swim into segments",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/domain.Interval"
-                    }
-                },
-                "laps": {
-                    "description": "Number of pool laps",
-                    "type": "integer"
-                },
-                "location_type": {
-                    "description": "\"pool\" or \"open_water\"",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/domain.LocationType"
-                        }
-                    ]
-                },
-                "notes": {
-                    "description": "Optional notes",
-                    "type": "string"
-                },
-                "pool_size": {
-                    "description": "Pool length in meters (0 if open water)",
-                    "type": "number"
-                },
-                "start": {
-                    "description": "Start time of the activity",
-                    "type": "string"
-                },
-                "user_id": {
-                    "description": "UserID is the ID of the user who performed the activity",
-                    "type": "integer"
-                }
-            }
-        },
         "domain.Interval": {
             "type": "object",
             "properties": {
@@ -271,17 +220,6 @@ const docTemplate = `{
                 "IntervalCoolDown"
             ]
         },
-        "domain.LocationType": {
-            "type": "string",
-            "enum": [
-                "pool",
-                "open_water"
-            ],
-            "x-enum-varnames": [
-                "LocationPool",
-                "LocationOpenWater"
-            ]
-        },
         "domain.StrokeType": {
             "type": "string",
             "enum": [
@@ -304,12 +242,6 @@ const docTemplate = `{
         "domain.User": {
             "type": "object",
             "properties": {
-                "activities": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/domain.Activity"
-                    }
-                },
                 "city": {
                     "type": "string"
                 },
