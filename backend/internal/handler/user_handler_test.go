@@ -124,7 +124,7 @@ func TestGetUserByID(t *testing.T) {
 
 		assert.Equal(t, http.StatusOK, resp.Code)
 
-		// Verifica se o JSON retornado contém os dados corretos
+		// Validate the response body
 		var returned domain.User
 		err := json.Unmarshal(resp.Body.Bytes(), &returned)
 		assert.NoError(t, err)
