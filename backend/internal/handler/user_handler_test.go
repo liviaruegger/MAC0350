@@ -38,7 +38,13 @@ func TestCreateUser(t *testing.T) {
 	router.POST("/users", handler.CreateUser)
 
 	t.Run("success", func(t *testing.T) {
-		newUser := domain.User{ID: 1, Name: "John Doe"}
+		newUser := domain.User{
+			ID:    1,
+			Name:  "John Doe",
+			Email: "john@example.com",
+			City:  "São Paulo",
+			Phone: "+55 11 91234-5678",
+		}
 		mockService.On("CreateUser", newUser).Return(nil)
 
 		body, _ := json.Marshal(newUser)
@@ -63,13 +69,22 @@ func TestCreateUser(t *testing.T) {
 	})
 
 	t.Run("service error", func(t *testing.T) {
-		// Clear previous expectations
 		mockService.ExpectedCalls = nil
 		mockService.Calls = nil
 
-		newUser := domain.User{ID: 1, Name: "John Doe"}
+		newUser := domain.User{
+			ID:    1,
+			Name:  "John Doe",
+			Email: "john@example.com",
+			City:  "São Paulo",
+			Phone: "+55 11 91234-5678",
+		}
 		mockService.On("CreateUser", mock.MatchedBy(func(u domain.User) bool {
-			return u.ID == newUser.ID && u.Name == newUser.Name
+			return u.ID == newUser.ID &&
+				u.Name == newUser.Name &&
+				u.Email == newUser.Email &&
+				u.City == newUser.City &&
+				u.Phone == newUser.Phone
 		})).Return(errors.New("service error"))
 
 		body, _ := json.Marshal(newUser)
@@ -93,7 +108,13 @@ func TestGetUserByID(t *testing.T) {
 	router.GET("/users/:id", handler.GetUserByID)
 
 	t.Run("success", func(t *testing.T) {
-		user := domain.User{ID: 1, Name: "John Doe"}
+		user := domain.User{
+			ID:    1,
+			Name:  "John Doe",
+			Email: "john@example.com",
+			City:  "São Paulo",
+			Phone: "+55 11 91234-5678",
+		}
 		mockService.On("GetUserByID", 1).Return(user, nil)
 
 		req, _ := http.NewRequest(http.MethodGet, "/users/1", nil)
@@ -102,6 +123,13 @@ func TestGetUserByID(t *testing.T) {
 		router.ServeHTTP(resp, req)
 
 		assert.Equal(t, http.StatusOK, resp.Code)
+
+		// Validate the response body
+		var returned domain.User
+		err := json.Unmarshal(resp.Body.Bytes(), &returned)
+		assert.NoError(t, err)
+		assert.Equal(t, user, returned)
+
 		mockService.AssertCalled(t, "GetUserByID", 1)
 	})
 

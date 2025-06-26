@@ -23,13 +23,16 @@ func NewUserRepository(db *sql.DB) *PostgresUserRepository {
 }
 
 func (r *PostgresUserRepository) CreateUser(user domain.User) error {
-	_, err := r.db.Exec("INSERT INTO users (name, email) VALUES ($1, $2)", user.Name, user.Email)
+	_, err := r.db.Exec(
+		"INSERT INTO users (name, email, city, phone) VALUES ($1, $2, $3, $4)",
+		user.Name, user.Email, user.City, user.Phone,
+	)
 	return err
 }
 
 func (r *PostgresUserRepository) GetUserByID(id int) (domain.User, error) {
 	var user domain.User
-	row := r.db.QueryRow("SELECT id, name, email FROM users WHERE id = $1", id)
-	err := row.Scan(&user.ID, &user.Name, &user.Email)
+	row := r.db.QueryRow("SELECT id, name, email, city, phone FROM users WHERE id = $1", id)
+	err := row.Scan(&user.ID, &user.Name, &user.Email, &user.City, &user.Phone)
 	return user, err
 }

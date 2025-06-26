@@ -20,11 +20,11 @@ func NewUserHandler(s app.UserService) *UserHandler {
 
 // CreateUser godoc
 // @Summary Create a new user
-// @Description Creates a user with the data provided in the request body
+// @Description Creates a user with the provided name, email, city, and phone
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param user body domain.User true "User data"
+// @Param user body domain.User true "User data."
 // @Success 201 {object} domain.User "User successfully created"
 // @Failure 400 {object} ErrorResponse "Invalid input"
 // @Failure 500 {object} ErrorResponse "Internal server error"
@@ -46,7 +46,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 
 // GetUserByID godoc
 // @Summary Get user by ID
-// @Description Returns the user data for the specified ID
+// @Description Returns the user with name, email, city, and phone for the specified ID
 // @Tags users
 // @Accept json
 // @Produce json
