@@ -20,12 +20,45 @@ func (m *mockUserRepo) CreateUser(user domain.User) error {
 	return nil
 }
 
+func (m *mockUserRepo) GetAllUsers() ([]domain.User, error) {
+	var userList []domain.User
+	for _, user := range m.users {
+		userList = append(userList, user)
+	}
+	return userList, nil
+}
+
 func (m *mockUserRepo) GetUserByID(id int) (domain.User, error) {
 	user, exists := m.users[id]
 	if !exists {
 		return domain.User{}, errors.New("user not found")
 	}
 	return user, nil
+}
+
+func (m *mockUserRepo) GetUserByEmail(email string) (domain.User, error) {
+	for _, user := range m.users {
+		if user.Email == email {
+			return user, nil
+		}
+	}
+	return domain.User{}, errors.New("user not found")
+}
+
+func (m *mockUserRepo) UpdateUser(user domain.User) error {
+	if _, exists := m.users[int(user.ID)]; !exists {
+		return errors.New("user not found")
+	}
+	m.users[int(user.ID)] = user
+	return nil
+}
+
+func (m *mockUserRepo) DeleteUser(id int) error {
+	if _, exists := m.users[id]; !exists {
+		return errors.New("user not found")
+	}
+	delete(m.users, id)
+	return nil
 }
 
 func TestUserService(t *testing.T) {

@@ -24,9 +24,29 @@ func (m *MockUserService) CreateUser(user domain.User) error {
 	return args.Error(0)
 }
 
+func (m *MockUserService) GetAllUsers() ([]domain.User, error) {
+	args := m.Called()
+	return args.Get(0).([]domain.User), args.Error(1)
+}
+
 func (m *MockUserService) GetUserByID(id int) (domain.User, error) {
 	args := m.Called(id)
 	return args.Get(0).(domain.User), args.Error(1)
+}
+
+func (m *MockUserService) GetUserByEmail(email string) (domain.User, error) {
+	args := m.Called(email)
+	return args.Get(0).(domain.User), args.Error(1)
+}
+
+func (m *MockUserService) UpdateUser(user domain.User) error {
+	args := m.Called(user)
+	return args.Error(0)
+}
+
+func (m *MockUserService) DeleteUser(id int) error {
+	args := m.Called(id)
+	return args.Error(0)
 }
 
 func TestCreateUser(t *testing.T) {
