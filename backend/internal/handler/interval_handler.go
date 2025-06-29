@@ -23,21 +23,32 @@ func NewIntervalHandler(s app.IntervalService) *IntervalHandler {
 // @Tags intervals
 // @Accept json
 // @Produce json
-// @Param interval body domain.Interval true "Interval data"
+// @Param interval body handler.CreateIntervalRequest true "Interval data"
 // @Success 201 {object} domain.Interval "Interval successfully created"
 // @Failure 400 {object} ErrorResponse "Invalid input"
 // @Failure 500 {object} ErrorResponse "Internal server error"
 // @Router /intervals [post]
 func (h *IntervalHandler) CreateInterval(c *gin.Context) {
-	var newInterval domain.Interval
-	if err := c.BindJSON(&newInterval); err != nil {
+	var req CreateIntervalRequest
+	if err := c.BindJSON(&req); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, ErrorResponse{Error: "Invalid JSON or missing required fields"})
 		return
 	}
 
-	if err := h.service.CreateInterval(newInterval); err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Service error"})
+	interval := domain.Interval{
+		ActivityID: req.ActivityID,
+		StartTime:  req.StartTime,
+		Duration:   req.Duration,
+		Distance:   req.Distance,
+		Type:       req.Type,
+		Stroke:     req.Stroke,
+		Notes:      req.Notes,
+	}
+
+	if err := h.service.CreateInterval(interval); err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, ErrorResponse{Error: "Service error"})
 		return
 	}
 
-	c.IndentedJSON(http.StatusCreated, newInterval)
+	c.IndentedJSON(http.StatusCreated, interval)
 }

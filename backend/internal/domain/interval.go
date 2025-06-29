@@ -3,6 +3,8 @@ package domain
 import (
 	"fmt"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // IntervalType defines the kind of interval (e.g., swim, rest, drill)
@@ -49,9 +51,9 @@ const (
 
 // Interval represents a single segment of a swim session
 type Interval struct {
-	ID uint `json:"id"`
+	ID uuid.UUID `json:"id"`
 	// Foreign key to the swim activity/session
-	ActivityID uint `json:"activity_id"`
+	ActivityID uuid.UUID `json:"activity_id"`
 	// Start time of the interval
 	StartTime time.Time `json:"start_time"`
 	// Duration of the interval in string format, e.g., "1h30m"

@@ -29,7 +29,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.Interval"
+                            "$ref": "#/definitions/handler.CreateIntervalRequest"
                         }
                     }
                 ],
@@ -328,7 +328,7 @@
             "properties": {
                 "activity_id": {
                     "description": "Foreign key to the swim activity/session",
-                    "type": "integer"
+                    "type": "string"
                 },
                 "distance": {
                     "description": "Distance in meters",
@@ -339,7 +339,7 @@
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "notes": {
                     "description": "Optional notes like \"felt strong\", \"used fins\"",
@@ -426,6 +426,55 @@
                 },
                 "phone": {
                     "type": "string"
+                }
+            }
+        },
+        "handler.CreateIntervalRequest": {
+            "type": "object",
+            "required": [
+                "activity_id",
+                "distance",
+                "duration",
+                "start_time",
+                "stroke",
+                "type"
+            ],
+            "properties": {
+                "activity_id": {
+                    "description": "ActivityID is the ID of the associated activity/session",
+                    "type": "string"
+                },
+                "distance": {
+                    "description": "Distance in meters",
+                    "type": "number"
+                },
+                "duration": {
+                    "description": "Duration of the interval in string format, e.g., \"1h30m\"",
+                    "type": "string"
+                },
+                "notes": {
+                    "description": "Notes are optional remarks such as \"felt strong\", \"used fins\"",
+                    "type": "string"
+                },
+                "start_time": {
+                    "description": "StartTime is the start time of the interval",
+                    "type": "string"
+                },
+                "stroke": {
+                    "description": "Stroke is the swimming stroke type like \"freestyle\", \"backstroke\", etc.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.StrokeType"
+                        }
+                    ]
+                },
+                "type": {
+                    "description": "Type is one of the predefined interval types like \"swim\", \"rest\", etc.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.IntervalType"
+                        }
+                    ]
                 }
             }
         },
