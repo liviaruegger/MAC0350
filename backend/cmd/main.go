@@ -38,8 +38,8 @@ func SetupRouter() *gin.Engine {
 	// User routes
 	router.POST("/users", userHandler.CreateUser)
 	router.GET("/users", userHandler.GetAllUsers)
-	router.GET("/users/:id", userHandler.GetUserByID)
 	router.GET("/users/email/:email", userHandler.GetUserByEmail)
+	router.GET("/users/:id", userHandler.GetUserByID)
 	router.PUT("/users/:id", userHandler.UpdateUser)
 	router.DELETE("/users/:id", userHandler.DeleteUser)
 
