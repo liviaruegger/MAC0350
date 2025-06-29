@@ -5,6 +5,7 @@ import (
 	"github.com/liviaruegger/MAC0350/backend/internal/domain"
 
 	"net/http"
+	"regexp"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -103,8 +104,10 @@ func (h *UserHandler) GetUserByID(c *gin.Context) {
 // @Router /users/email/{email} [get]
 func (h *UserHandler) GetUserByEmail(c *gin.Context) {
 	email := c.Param("email")
-	if email == "" {
-		c.IndentedJSON(http.StatusBadRequest, ErrorResponse{Error: "Invalid email"})
+
+	// Simple email validation
+	if !isValidEmail(email) {
+		c.IndentedJSON(http.StatusBadRequest, ErrorResponse{Error: "Invalid email format"})
 		return
 	}
 
@@ -115,6 +118,14 @@ func (h *UserHandler) GetUserByEmail(c *gin.Context) {
 	}
 
 	c.IndentedJSON(http.StatusOK, user)
+}
+
+// isValidEmail checks if the email has a basic valid format.
+func isValidEmail(email string) bool {
+	// Very simple regex for demonstration; consider using a more robust one in production
+	re := `^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`
+	matched, _ := regexp.MatchString(re, email)
+	return matched
 }
 
 // UpdateUser godoc
