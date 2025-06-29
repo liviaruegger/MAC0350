@@ -7,7 +7,11 @@ import (
 
 type UserService interface {
 	CreateUser(user domain.User) error
+	GetAllUsers() ([]domain.User, error)
 	GetUserByID(id int) (domain.User, error)
+	GetUserByEmail(email string) (domain.User, error)
+	UpdateUser(user domain.User) error
+	DeleteUser(id int) error
 }
 
 // UserService provides user-related operations
@@ -24,6 +28,22 @@ func (s *userService) CreateUser(user domain.User) error {
 	return s.repo.CreateUser(user)
 }
 
+func (s *userService) GetAllUsers() ([]domain.User, error) {
+	return s.repo.GetAllUsers()
+}
+
 func (s *userService) GetUserByID(id int) (domain.User, error) {
 	return s.repo.GetUserByID(id)
+}
+
+func (s *userService) GetUserByEmail(email string) (domain.User, error) {
+	return s.repo.GetUserByEmail(email)
+}
+
+func (s *userService) UpdateUser(user domain.User) error {
+	return s.repo.UpdateUser(user)
+}
+
+func (s *userService) DeleteUser(id int) error {
+	return s.repo.DeleteUser(id)
 }

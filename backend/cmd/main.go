@@ -36,8 +36,12 @@ func SetupRouter() *gin.Engine {
 	router.GET("/swagger/*any", ginswagger.WrapHandler(swaggerfiles.Handler))
 
 	// User routes
-	router.GET("/users/:id", userHandler.GetUserByID)
 	router.POST("/users", userHandler.CreateUser)
+	router.GET("/users", userHandler.GetAllUsers)
+	router.GET("/users/email/:email", userHandler.GetUserByEmail)
+	router.GET("/users/:id", userHandler.GetUserByID)
+	router.PUT("/users/:id", userHandler.UpdateUser)
+	router.DELETE("/users/:id", userHandler.DeleteUser)
 
 	// Interval routes
 	router.POST("/intervals", intervalHandler.CreateInterval)

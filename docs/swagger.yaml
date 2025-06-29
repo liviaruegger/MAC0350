@@ -123,6 +123,26 @@ paths:
       tags:
       - intervals
   /users:
+    get:
+      consumes:
+      - application/json
+      description: Returns a list of all users with their name, email, city, and phone
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of users
+          schema:
+            items:
+              $ref: '#/definitions/domain.User'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Get all users
+      tags:
+      - users
     post:
       consumes:
       - application/json
@@ -153,6 +173,36 @@ paths:
       tags:
       - users
   /users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes the user with the specified ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: User successfully deleted
+        "400":
+          description: Invalid user ID
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Delete a user
+      tags:
+      - users
     get:
       consumes:
       - application/json
@@ -180,6 +230,74 @@ paths:
           schema:
             $ref: '#/definitions/handler.ErrorResponse'
       summary: Get user by ID
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Updates the user with the provided ID, name, email, city, and phone
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated user data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/domain.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User successfully updated
+          schema:
+            $ref: '#/definitions/domain.User'
+        "400":
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Update an existing user
+      tags:
+      - users
+  /users/email/{email}:
+    get:
+      consumes:
+      - application/json
+      description: Returns the user with name, email, city, and phone for the specified
+        email
+      parameters:
+      - description: User email
+        in: path
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User found
+          schema:
+            $ref: '#/definitions/domain.User'
+        "400":
+          description: Invalid email
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Get user by email
       tags:
       - users
 swagger: "2.0"
