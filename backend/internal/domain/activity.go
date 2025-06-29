@@ -3,6 +3,8 @@ package domain
 import (
 	"fmt"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // LocationType defines the kind of environment for the swim
@@ -16,9 +18,10 @@ const (
 
 // Activity represents a full swim session
 type Activity struct {
-	ID uint `json:"id"`
-	// UserID is the ID of the user who performed the activity
-	UserID uint `json:"user_id"`
+	// ID is the unique identifier for the activity (PK)
+	ID uuid.UUID `json:"id"`
+	// UserID is the ID of the user who performed the activity (FK)
+	UserID uuid.UUID `json:"user_id"`
 	// Start time of the activity
 	Start time.Time `json:"start"`
 	// Duration of the activity in string format, e.g., "1h30m"

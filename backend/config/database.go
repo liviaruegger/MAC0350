@@ -44,7 +44,7 @@ func createTables(db *sql.DB) {
 
 	activitiesTable := `
 	CREATE TABLE IF NOT EXISTS activities (
-		id SERIAL PRIMARY KEY,
+		id UUID PRIMARY KEY,
 		user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 		start TIMESTAMP NOT NULL,
 		duration BIGINT NOT NULL,

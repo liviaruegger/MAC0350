@@ -4,31 +4,31 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/liviaruegger/MAC0350/backend/internal/domain"
 )
 
 // ActivityRepository defines the interface for the activity repository
 type ActivityRepository interface {
-	Create(activity domain.Activity) error
-	GetAll() ([]domain.Activity, error)
-	GetAllByUser(userID int) ([]domain.Activity, error)
+	CreateActivity(activity domain.Activity) error
+	GetAllActivities() ([]domain.Activity, error)
+	GetAllActivitiesByUser(userID uuid.UUID) ([]domain.Activity, error)
 }
 
-// PostgresActivityRepository is a concrete implementation of ActivityRepository using PostgreSQL
 type PostgresActivityRepository struct {
 	db *sql.DB
 }
 
-// NewActivityRepository creates a new PostgresActivityRepository
 func NewActivityRepository(db *sql.DB) *PostgresActivityRepository {
 	return &PostgresActivityRepository{db: db}
 }
 
-func (r *PostgresActivityRepository) Create(activity domain.Activity) error {
+func (r *PostgresActivityRepository) CreateActivity(activity domain.Activity) error {
 	_, err := r.db.Exec(
 		`INSERT INTO activities (
-			user_id, start, duration, distance, laps, pool_size, location_type
-		) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+			id, user_id, start, duration, distance, laps, pool_size, location_type, notes
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+		activity.ID,
 		activity.UserID,
 		activity.Start,
 		int64(activity.Duration.Seconds()),
@@ -36,15 +36,15 @@ func (r *PostgresActivityRepository) Create(activity domain.Activity) error {
 		activity.Laps,
 		activity.PoolSize,
 		string(activity.LocationType),
+		activity.Notes,
 	)
 
 	return err
 }
 
-func (r *PostgresActivityRepository) GetAll() ([]domain.Activity, error) {
+func (r *PostgresActivityRepository) GetAllActivities() ([]domain.Activity, error) {
 	rows, err := r.db.Query(
-		`SELECT id, user_id, start, duration, distance, laps, pool_size, location_type
-		 FROM activities`,
+		`SELECT id, user_id, start, duration, distance, laps, pool_size, location_type, notes FROM activities`,
 	)
 	if err != nil {
 		return nil, err
@@ -66,6 +66,7 @@ func (r *PostgresActivityRepository) GetAll() ([]domain.Activity, error) {
 			&a.Laps,
 			&a.PoolSize,
 			&locationType,
+			&a.Notes,
 		)
 		if err != nil {
 			return nil, err
@@ -80,9 +81,9 @@ func (r *PostgresActivityRepository) GetAll() ([]domain.Activity, error) {
 	return activities, nil
 }
 
-func (r *PostgresActivityRepository) GetAllByUser(userID int) ([]domain.Activity, error) {
+func (r *PostgresActivityRepository) GetAllActivitiesByUser(userID uuid.UUID) ([]domain.Activity, error) {
 	rows, err := r.db.Query(
-		`SELECT id, user_id, start, duration, distance, laps, pool_size, location_type
+		`SELECT id, user_id, start, duration, distance, laps, pool_size, location_type, notes
          FROM activities
          WHERE user_id = $1`,
 		userID,
@@ -107,6 +108,7 @@ func (r *PostgresActivityRepository) GetAllByUser(userID int) ([]domain.Activity
 			&a.Laps,
 			&a.PoolSize,
 			&locationType,
+			&a.Notes,
 		)
 		if err != nil {
 			return nil, err
