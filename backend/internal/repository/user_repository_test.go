@@ -18,6 +18,7 @@ func TestCreateUser(t *testing.T) {
 	repo := NewUserRepository(db)
 
 	user := domain.User{
+		ID:    uuid.New(),
 		Name:  "John Doe",
 		Email: "john.doe@example.com",
 		City:  "São Paulo",
@@ -25,7 +26,7 @@ func TestCreateUser(t *testing.T) {
 	}
 
 	mock.ExpectExec("INSERT INTO users").
-		WithArgs(user.Name, user.Email, user.City, user.Phone).
+		WithArgs(user.ID.String(), user.Name, user.Email, user.City, user.Phone).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	err = repo.CreateUser(user)
