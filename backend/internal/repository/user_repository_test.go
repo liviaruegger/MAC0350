@@ -6,6 +6,8 @@ import (
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	"github.com/liviaruegger/MAC0350/backend/internal/domain"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/google/uuid"
 )
 
 func TestCreateUser(t *testing.T) {
@@ -38,16 +40,20 @@ func TestGetAllUsers(t *testing.T) {
 
 	repo := NewUserRepository(db)
 
+	// Use github.com/google/uuid for UUIDs
+	id1 := uuid.New()
+	id2 := uuid.New()
+
 	expectedUsers := []domain.User{
 		{
-			ID:    1,
+			ID:    id1,
 			Name:  "John Doe",
 			Email: "john.doe@example.com",
 			City:  "São Paulo",
 			Phone: "+5511999999999",
 		},
 		{
-			ID:    2,
+			ID:    id2,
 			Name:  "Jane Doe",
 			Email: "jane.doe@example.com",
 			City:  "Rio de Janeiro",
@@ -56,8 +62,8 @@ func TestGetAllUsers(t *testing.T) {
 	}
 
 	rows := sqlmock.NewRows([]string{"id", "name", "email", "city", "phone"}).
-		AddRow(expectedUsers[0].ID, expectedUsers[0].Name, expectedUsers[0].Email, expectedUsers[0].City, expectedUsers[0].Phone).
-		AddRow(expectedUsers[1].ID, expectedUsers[1].Name, expectedUsers[1].Email, expectedUsers[1].City, expectedUsers[1].Phone)
+		AddRow(expectedUsers[0].ID.String(), expectedUsers[0].Name, expectedUsers[0].Email, expectedUsers[0].City, expectedUsers[0].Phone).
+		AddRow(expectedUsers[1].ID.String(), expectedUsers[1].Name, expectedUsers[1].Email, expectedUsers[1].City, expectedUsers[1].Phone)
 
 	mock.ExpectQuery("SELECT id, name, email, city, phone FROM users").
 		WillReturnRows(rows)
@@ -132,8 +138,9 @@ func TestGetUserByID(t *testing.T) {
 
 	repo := NewUserRepository(db)
 
+	id := uuid.New()
 	expectedUser := domain.User{
-		ID:    1,
+		ID:    id,
 		Name:  "John Doe",
 		Email: "john.doe@example.com",
 		City:  "São Paulo",
@@ -141,13 +148,13 @@ func TestGetUserByID(t *testing.T) {
 	}
 
 	rows := sqlmock.NewRows([]string{"id", "name", "email", "city", "phone"}).
-		AddRow(expectedUser.ID, expectedUser.Name, expectedUser.Email, expectedUser.City, expectedUser.Phone)
+		AddRow(expectedUser.ID.String(), expectedUser.Name, expectedUser.Email, expectedUser.City, expectedUser.Phone)
 
 	mock.ExpectQuery("SELECT id, name, email, city, phone FROM users WHERE id = \\$1").
-		WithArgs(expectedUser.ID).
+		WithArgs(expectedUser.ID.String()).
 		WillReturnRows(rows)
 
-	user, err := repo.GetUserByID(int(expectedUser.ID))
+	user, err := repo.GetUserByID(expectedUser.ID)
 	assert.NoError(t, err)
 	assert.Equal(t, expectedUser, user)
 	assert.NoError(t, mock.ExpectationsWereMet())
@@ -160,8 +167,9 @@ func TestGetUserByEmail(t *testing.T) {
 
 	repo := NewUserRepository(db)
 
+	id := uuid.New()
 	expectedUser := domain.User{
-		ID:    1,
+		ID:    id,
 		Name:  "John Doe",
 		Email: "john.doe@example.com",
 		City:  "São Paulo",
@@ -169,7 +177,7 @@ func TestGetUserByEmail(t *testing.T) {
 	}
 
 	rows := sqlmock.NewRows([]string{"id", "name", "email", "city", "phone"}).
-		AddRow(expectedUser.ID, expectedUser.Name, expectedUser.Email, expectedUser.City, expectedUser.Phone)
+		AddRow(expectedUser.ID.String(), expectedUser.Name, expectedUser.Email, expectedUser.City, expectedUser.Phone)
 
 	mock.ExpectQuery("SELECT id, name, email, city, phone FROM users WHERE email = \\$1").
 		WithArgs(expectedUser.Email).
@@ -205,8 +213,9 @@ func TestUpdateUser(t *testing.T) {
 
 	repo := NewUserRepository(db)
 
+	userID := uuid.New()
 	user := domain.User{
-		ID:    1,
+		ID:    userID,
 		Name:  "John Updated",
 		Email: "john.updated@example.com",
 		City:  "Campinas",
@@ -214,7 +223,7 @@ func TestUpdateUser(t *testing.T) {
 	}
 
 	mock.ExpectExec("UPDATE users SET name = \\$1, email = \\$2, city = \\$3, phone = \\$4 WHERE id = \\$5").
-		WithArgs(user.Name, user.Email, user.City, user.Phone, user.ID).
+		WithArgs(user.Name, user.Email, user.City, user.Phone, user.ID.String()).
 		WillReturnResult(sqlmock.NewResult(0, 1))
 
 	err = repo.UpdateUser(user)
@@ -229,10 +238,10 @@ func TestDeleteUser(t *testing.T) {
 
 	repo := NewUserRepository(db)
 
-	userID := 1
+	userID := uuid.New()
 
 	mock.ExpectExec("DELETE FROM users WHERE id = \\$1").
-		WithArgs(userID).
+		WithArgs(userID.String()).
 		WillReturnResult(sqlmock.NewResult(0, 1))
 
 	err = repo.DeleteUser(userID)

@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/liviaruegger/MAC0350/backend/internal/domain"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -29,7 +30,7 @@ func (m *MockUserService) GetAllUsers() ([]domain.User, error) {
 	return args.Get(0).([]domain.User), args.Error(1)
 }
 
-func (m *MockUserService) GetUserByID(id int) (domain.User, error) {
+func (m *MockUserService) GetUserByID(id uuid.UUID) (domain.User, error) {
 	args := m.Called(id)
 	return args.Get(0).(domain.User), args.Error(1)
 }
@@ -44,7 +45,7 @@ func (m *MockUserService) UpdateUser(user domain.User) error {
 	return args.Error(0)
 }
 
-func (m *MockUserService) DeleteUser(id int) error {
+func (m *MockUserService) DeleteUser(id uuid.UUID) error {
 	args := m.Called(id)
 	return args.Error(0)
 }
@@ -59,13 +60,17 @@ func TestCreateUser(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		newUser := domain.User{
-			ID:    1,
 			Name:  "John Doe",
 			Email: "john@example.com",
 			City:  "São Paulo",
 			Phone: "+55 11 91234-5678",
 		}
-		mockService.On("CreateUser", newUser).Return(nil)
+		mockService.On("CreateUser", mock.MatchedBy(func(u domain.User) bool {
+			return u.Name == newUser.Name &&
+				u.Email == newUser.Email &&
+				u.City == newUser.City &&
+				u.Phone == newUser.Phone
+		})).Return(nil)
 
 		body, _ := json.Marshal(newUser)
 		req, _ := http.NewRequest(http.MethodPost, "/users", bytes.NewBuffer(body))
@@ -75,7 +80,12 @@ func TestCreateUser(t *testing.T) {
 		router.ServeHTTP(resp, req)
 
 		assert.Equal(t, http.StatusCreated, resp.Code)
-		mockService.AssertCalled(t, "CreateUser", newUser)
+		mockService.AssertCalled(t, "CreateUser", mock.MatchedBy(func(u domain.User) bool {
+			return u.Name == newUser.Name &&
+				u.Email == newUser.Email &&
+				u.City == newUser.City &&
+				u.Phone == newUser.Phone
+		}))
 	})
 
 	t.Run("invalid JSON", func(t *testing.T) {
@@ -93,15 +103,13 @@ func TestCreateUser(t *testing.T) {
 		mockService.Calls = nil
 
 		newUser := domain.User{
-			ID:    1,
 			Name:  "John Doe",
 			Email: "john@example.com",
 			City:  "São Paulo",
 			Phone: "+55 11 91234-5678",
 		}
 		mockService.On("CreateUser", mock.MatchedBy(func(u domain.User) bool {
-			return u.ID == newUser.ID &&
-				u.Name == newUser.Name &&
+			return u.Name == newUser.Name &&
 				u.Email == newUser.Email &&
 				u.City == newUser.City &&
 				u.Phone == newUser.Phone
@@ -115,7 +123,12 @@ func TestCreateUser(t *testing.T) {
 		router.ServeHTTP(resp, req)
 
 		assert.Equal(t, http.StatusInternalServerError, resp.Code)
-		mockService.AssertCalled(t, "CreateUser", newUser)
+		mockService.AssertCalled(t, "CreateUser", mock.MatchedBy(func(u domain.User) bool {
+			return u.Name == newUser.Name &&
+				u.Email == newUser.Email &&
+				u.City == newUser.City &&
+				u.Phone == newUser.Phone
+		}))
 	})
 }
 
@@ -131,16 +144,18 @@ func TestGetAllUsers(t *testing.T) {
 		mockService.ExpectedCalls = nil
 		mockService.Calls = nil
 
+		userID1 := uuid.New()
+		userID2 := uuid.New()
 		users := []domain.User{
 			{
-				ID:    1,
+				ID:    userID1,
 				Name:  "John Doe",
 				Email: "john@example.com",
 				City:  "São Paulo",
 				Phone: "+55 11 91234-5678",
 			},
 			{
-				ID:    2,
+				ID:    userID2,
 				Name:  "Jane Doe",
 				Email: "jane@example.com",
 				City:  "Rio de Janeiro",
@@ -189,16 +204,17 @@ func TestGetUserByID(t *testing.T) {
 	router.GET("/users/:id", handler.GetUserByID)
 
 	t.Run("success", func(t *testing.T) {
+		userID := uuid.New()
 		user := domain.User{
-			ID:    1,
+			ID:    userID,
 			Name:  "John Doe",
 			Email: "john@example.com",
 			City:  "São Paulo",
 			Phone: "+55 11 91234-5678",
 		}
-		mockService.On("GetUserByID", 1).Return(user, nil)
+		mockService.On("GetUserByID", userID).Return(user, nil)
 
-		req, _ := http.NewRequest(http.MethodGet, "/users/1", nil)
+		req, _ := http.NewRequest(http.MethodGet, "/users/"+userID.String(), nil)
 		resp := httptest.NewRecorder()
 
 		router.ServeHTTP(resp, req)
@@ -211,7 +227,7 @@ func TestGetUserByID(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, user, returned)
 
-		mockService.AssertCalled(t, "GetUserByID", 1)
+		mockService.AssertCalled(t, "GetUserByID", userID)
 	})
 
 	t.Run("invalid ID", func(t *testing.T) {
@@ -224,15 +240,16 @@ func TestGetUserByID(t *testing.T) {
 	})
 
 	t.Run("user not found", func(t *testing.T) {
-		mockService.On("GetUserByID", 2).Return(domain.User{}, errors.New("user not found"))
+		notFoundID := uuid.New()
+		mockService.On("GetUserByID", notFoundID).Return(domain.User{}, errors.New("user not found"))
 
-		req, _ := http.NewRequest(http.MethodGet, "/users/2", nil)
+		req, _ := http.NewRequest(http.MethodGet, "/users/"+notFoundID.String(), nil)
 		resp := httptest.NewRecorder()
 
 		router.ServeHTTP(resp, req)
 
 		assert.Equal(t, http.StatusNotFound, resp.Code)
-		mockService.AssertCalled(t, "GetUserByID", 2)
+		mockService.AssertCalled(t, "GetUserByID", notFoundID)
 	})
 }
 
@@ -248,8 +265,9 @@ func TestGetUserByEmail(t *testing.T) {
 		mockService.ExpectedCalls = nil
 		mockService.Calls = nil
 
+		userID := uuid.New()
 		user := domain.User{
-			ID:    1,
+			ID:    userID,
 			Name:  "John Doe",
 			Email: "john@example.com",
 			City:  "São Paulo",
@@ -276,7 +294,6 @@ func TestGetUserByEmail(t *testing.T) {
 		mockService.ExpectedCalls = nil
 		mockService.Calls = nil
 
-		// Use an invalid email format as parameter
 		req, _ := http.NewRequest(http.MethodGet, "/users/email/invalid-email", nil)
 		resp := httptest.NewRecorder()
 
@@ -313,8 +330,9 @@ func TestUpdateUser(t *testing.T) {
 		mockService.ExpectedCalls = nil
 		mockService.Calls = nil
 
+		userID := uuid.New()
 		updatedUser := domain.User{
-			ID:    1,
+			ID:    userID,
 			Name:  "John Updated",
 			Email: "john.updated@example.com",
 			City:  "Campinas",
@@ -323,7 +341,7 @@ func TestUpdateUser(t *testing.T) {
 		mockService.On("UpdateUser", updatedUser).Return(nil)
 
 		body, _ := json.Marshal(updatedUser)
-		req, _ := http.NewRequest(http.MethodPut, "/users/1", bytes.NewBuffer(body))
+		req, _ := http.NewRequest(http.MethodPut, "/users/"+userID.String(), bytes.NewBuffer(body))
 		req.Header.Set("Content-Type", "application/json")
 		resp := httptest.NewRecorder()
 
@@ -350,7 +368,8 @@ func TestUpdateUser(t *testing.T) {
 	})
 
 	t.Run("invalid JSON", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodPut, "/users/1", bytes.NewBuffer([]byte("invalid json")))
+		userID := uuid.New()
+		req, _ := http.NewRequest(http.MethodPut, "/users/"+userID.String(), bytes.NewBuffer([]byte("invalid json")))
 		req.Header.Set("Content-Type", "application/json")
 		resp := httptest.NewRecorder()
 
@@ -363,8 +382,9 @@ func TestUpdateUser(t *testing.T) {
 		mockService.ExpectedCalls = nil
 		mockService.Calls = nil
 
+		userID := uuid.New()
 		updatedUser := domain.User{
-			ID:    2,
+			ID:    userID,
 			Name:  "Not Found",
 			Email: "notfound@example.com",
 			City:  "Nowhere",
@@ -373,7 +393,7 @@ func TestUpdateUser(t *testing.T) {
 		mockService.On("UpdateUser", updatedUser).Return(errors.New("user not found"))
 
 		body, _ := json.Marshal(updatedUser)
-		req, _ := http.NewRequest(http.MethodPut, "/users/2", bytes.NewBuffer(body))
+		req, _ := http.NewRequest(http.MethodPut, "/users/"+userID.String(), bytes.NewBuffer(body))
 		req.Header.Set("Content-Type", "application/json")
 		resp := httptest.NewRecorder()
 
@@ -396,15 +416,16 @@ func TestDeleteUser(t *testing.T) {
 		mockService.ExpectedCalls = nil
 		mockService.Calls = nil
 
-		mockService.On("DeleteUser", 1).Return(nil)
+		userID := uuid.New()
+		mockService.On("DeleteUser", userID).Return(nil)
 
-		req, _ := http.NewRequest(http.MethodDelete, "/users/1", nil)
+		req, _ := http.NewRequest(http.MethodDelete, "/users/"+userID.String(), nil)
 		resp := httptest.NewRecorder()
 
 		router.ServeHTTP(resp, req)
 
 		assert.Equal(t, http.StatusNoContent, resp.Code)
-		mockService.AssertCalled(t, "DeleteUser", 1)
+		mockService.AssertCalled(t, "DeleteUser", userID)
 	})
 
 	t.Run("invalid user ID", func(t *testing.T) {
@@ -420,14 +441,15 @@ func TestDeleteUser(t *testing.T) {
 		mockService.ExpectedCalls = nil
 		mockService.Calls = nil
 
-		mockService.On("DeleteUser", 2).Return(errors.New("user not found"))
+		notFoundID := uuid.New()
+		mockService.On("DeleteUser", notFoundID).Return(errors.New("user not found"))
 
-		req, _ := http.NewRequest(http.MethodDelete, "/users/2", nil)
+		req, _ := http.NewRequest(http.MethodDelete, "/users/"+notFoundID.String(), nil)
 		resp := httptest.NewRecorder()
 
 		router.ServeHTTP(resp, req)
 
 		assert.Equal(t, http.StatusNotFound, resp.Code)
-		mockService.AssertCalled(t, "DeleteUser", 2)
+		mockService.AssertCalled(t, "DeleteUser", notFoundID)
 	})
 }

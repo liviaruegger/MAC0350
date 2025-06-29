@@ -71,11 +71,27 @@ definitions:
       email:
         type: string
       id:
-        type: integer
+        type: string
       name:
         type: string
       phone:
         type: string
+    type: object
+  handler.CreateUserRequest:
+    properties:
+      city:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+    required:
+    - city
+    - email
+    - name
+    - phone
     type: object
   handler.ErrorResponse:
     properties:
@@ -153,7 +169,7 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/domain.User'
+          $ref: '#/definitions/handler.CreateUserRequest'
       produces:
       - application/json
       responses:
@@ -178,11 +194,11 @@ paths:
       - application/json
       description: Deletes the user with the specified ID
       parameters:
-      - description: User ID
+      - description: User ID (UUID)
         in: path
         name: id
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -209,11 +225,11 @@ paths:
       description: Returns the user with name, email, city, and phone for the specified
         ID
       parameters:
-      - description: User ID
+      - description: User ID (UUID)
         in: path
         name: id
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -237,11 +253,11 @@ paths:
       - application/json
       description: Updates the user with the provided ID, name, email, city, and phone
       parameters:
-      - description: User ID
+      - description: User ID (UUID)
         in: path
         name: id
         required: true
-        type: integer
+        type: string
       - description: Updated user data
         in: body
         name: user

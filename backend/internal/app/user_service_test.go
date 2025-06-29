@@ -5,18 +5,20 @@ import (
 	"testing"
 
 	"github.com/liviaruegger/MAC0350/backend/internal/domain"
+
+	"github.com/google/uuid"
 )
 
 // Mock repository
 type mockUserRepo struct {
-	users map[int]domain.User
+	users map[uuid.UUID]domain.User
 }
 
 func (m *mockUserRepo) CreateUser(user domain.User) error {
-	if _, exists := m.users[int(user.ID)]; exists {
+	if _, exists := m.users[user.ID]; exists {
 		return errors.New("user already exists")
 	}
-	m.users[int(user.ID)] = user
+	m.users[user.ID] = user
 	return nil
 }
 
@@ -28,7 +30,7 @@ func (m *mockUserRepo) GetAllUsers() ([]domain.User, error) {
 	return userList, nil
 }
 
-func (m *mockUserRepo) GetUserByID(id int) (domain.User, error) {
+func (m *mockUserRepo) GetUserByID(id uuid.UUID) (domain.User, error) {
 	user, exists := m.users[id]
 	if !exists {
 		return domain.User{}, errors.New("user not found")
@@ -46,14 +48,14 @@ func (m *mockUserRepo) GetUserByEmail(email string) (domain.User, error) {
 }
 
 func (m *mockUserRepo) UpdateUser(user domain.User) error {
-	if _, exists := m.users[int(user.ID)]; !exists {
+	if _, exists := m.users[user.ID]; !exists {
 		return errors.New("user not found")
 	}
-	m.users[int(user.ID)] = user
+	m.users[user.ID] = user
 	return nil
 }
 
-func (m *mockUserRepo) DeleteUser(id int) error {
+func (m *mockUserRepo) DeleteUser(id uuid.UUID) error {
 	if _, exists := m.users[id]; !exists {
 		return errors.New("user not found")
 	}
@@ -62,11 +64,12 @@ func (m *mockUserRepo) DeleteUser(id int) error {
 }
 
 func TestUserService(t *testing.T) {
-	repo := &mockUserRepo{users: make(map[int]domain.User)}
+	repo := &mockUserRepo{users: make(map[uuid.UUID]domain.User)}
 	service := NewUserService(repo)
 
+	userID := uuid.New()
 	user := domain.User{
-		ID:    1,
+		ID:    userID,
 		Name:  "Ana",
 		Email: "ana@example.com",
 	}
@@ -87,7 +90,7 @@ func TestUserService(t *testing.T) {
 	}
 
 	// Test GetUserByID
-	retrieved, err := service.GetUserByID(1)
+	retrieved, err := service.GetUserByID(userID)
 	if err != nil {
 		t.Fatalf("expected to find user, got error: %v", err)
 	}
@@ -100,8 +103,8 @@ func TestUserService(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected to find user by email, got error: %v", err)
 	}
-	if retrievedByEmail.ID != 1 {
-		t.Errorf("expected user ID 1, got: %d", retrievedByEmail.ID)
+	if retrievedByEmail.ID != userID {
+		t.Errorf("expected user ID %v, got: %v", userID, retrievedByEmail.ID)
 	}
 
 	// Test UpdateUser
@@ -110,17 +113,17 @@ func TestUserService(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected no error on update, got: %v", err)
 	}
-	updated, _ := service.GetUserByID(1)
+	updated, _ := service.GetUserByID(userID)
 	if updated.Name != "Ana Paula" {
 		t.Errorf("expected updated name 'Ana Paula', got: %s", updated.Name)
 	}
 
 	// Test DeleteUser
-	err = service.DeleteUser(1)
+	err = service.DeleteUser(userID)
 	if err != nil {
 		t.Fatalf("expected no error on delete, got: %v", err)
 	}
-	_, err = service.GetUserByID(1)
+	_, err = service.GetUserByID(userID)
 	if err == nil {
 		t.Errorf("expected error after deleting user, got nil")
 	}

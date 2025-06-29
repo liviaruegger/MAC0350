@@ -4,16 +4,18 @@ import (
 	"database/sql"
 
 	"github.com/liviaruegger/MAC0350/backend/internal/domain"
+
+	"github.com/google/uuid"
 )
 
 // UserRepository defines the interface for the user repository
 type UserRepository interface {
 	CreateUser(user domain.User) error
 	GetAllUsers() ([]domain.User, error)
-	GetUserByID(id int) (domain.User, error)
+	GetUserByID(id uuid.UUID) (domain.User, error)
 	GetUserByEmail(email string) (domain.User, error)
 	UpdateUser(user domain.User) error
-	DeleteUser(id int) error
+	DeleteUser(id uuid.UUID) error
 }
 
 // PostgresUserRepository is a concrete implementation of UserRepository using a PostgreSQL database connection
@@ -28,8 +30,8 @@ func NewUserRepository(db *sql.DB) *PostgresUserRepository {
 
 func (r *PostgresUserRepository) CreateUser(user domain.User) error {
 	_, err := r.db.Exec(
-		"INSERT INTO users (name, email, city, phone) VALUES ($1, $2, $3, $4)",
-		user.Name, user.Email, user.City, user.Phone,
+		"INSERT INTO users (id, name, email, city, phone) VALUES ($1, $2, $3, $4, $5)",
+		user.ID, user.Name, user.Email, user.City, user.Phone,
 	)
 	return err
 }
@@ -57,7 +59,7 @@ func (r *PostgresUserRepository) GetAllUsers() ([]domain.User, error) {
 	return users, nil
 }
 
-func (r *PostgresUserRepository) GetUserByID(id int) (domain.User, error) {
+func (r *PostgresUserRepository) GetUserByID(id uuid.UUID) (domain.User, error) {
 	var user domain.User
 	row := r.db.QueryRow("SELECT id, name, email, city, phone FROM users WHERE id = $1", id)
 	err := row.Scan(&user.ID, &user.Name, &user.Email, &user.City, &user.Phone)
@@ -82,7 +84,7 @@ func (r *PostgresUserRepository) UpdateUser(user domain.User) error {
 	return err
 }
 
-func (r *PostgresUserRepository) DeleteUser(id int) error {
+func (r *PostgresUserRepository) DeleteUser(id uuid.UUID) error {
 	_, err := r.db.Exec("DELETE FROM users WHERE id = $1", id)
 	return err
 }
