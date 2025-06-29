@@ -15,7 +15,7 @@ type CreateUserRequest struct {
 	Phone string `json:"phone" binding:"required"`
 }
 
-// CreateIntervalRequest representa o corpo esperado para criar um intervalo (sem ID)
+// CreateIntervalRequest represents the request body for creating a new interval
 type CreateIntervalRequest struct {
 	// ActivityID is the ID of the associated activity/session
 	ActivityID uuid.UUID `json:"activity_id" binding:"required"`
