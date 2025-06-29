@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/liviaruegger/MAC0350/backend/internal/domain"
 )
 
@@ -41,8 +42,8 @@ func TestCreateInterval(t *testing.T) {
 				return nil
 			},
 			interval: domain.Interval{
-				ID:         1,
-				ActivityID: 1,
+				ID:         uuid.New(),
+				ActivityID: uuid.New(),
 				StartTime:  time.Date(2024, 6, 1, 10, 0, 0, 0, time.UTC),
 				Duration:   domain.DurationString((30 * time.Minute).String()),
 				Distance:   1000,
@@ -57,7 +58,10 @@ func TestCreateInterval(t *testing.T) {
 			createFunc: func(interval domain.Interval) error {
 				return errors.New("repo error")
 			},
-			interval:    domain.Interval{},
+			interval: domain.Interval{
+				ID:         uuid.New(),
+				ActivityID: uuid.New(),
+			},
 			expectedErr: errors.New("repo error"),
 		},
 	}

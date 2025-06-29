@@ -5,22 +5,24 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/google/uuid"
 	"github.com/liviaruegger/MAC0350/backend/internal/domain"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestPostgresIntervalRepository_Create(t *testing.T) {
-	// Create a mock database connection
 	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
 	defer db.Close()
 
 	repo := NewIntervalRepository(db)
 
-	// Define the interval to be inserted
+	activityID := uuid.New()
+	start := time.Now()
+
 	interval := domain.Interval{
-		ActivityID: 1,
-		StartTime:  time.Now(),
+		ActivityID: activityID,
+		StartTime:  start,
 		Duration:   domain.DurationString((time.Minute * 30).String()),
 		Distance:   1000,
 		Type:       "swim",
@@ -28,9 +30,9 @@ func TestPostgresIntervalRepository_Create(t *testing.T) {
 		Notes:      "Test interval",
 	}
 
-	// Expect the SQL query to be executed with the correct parameters
 	mock.ExpectExec(`INSERT INTO intervals`).
 		WithArgs(
+			sqlmock.AnyArg(), // id (generated UUID)
 			interval.ActivityID,
 			interval.StartTime,
 			int64(interval.Duration.Seconds()),
@@ -41,12 +43,7 @@ func TestPostgresIntervalRepository_Create(t *testing.T) {
 		).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	// Call the Create method
 	err = repo.Create(interval)
-
-	// Assert no errors occurred
 	assert.NoError(t, err)
-
-	// Ensure all expectations were met
 	assert.NoError(t, mock.ExpectationsWereMet())
 }

@@ -6,9 +6,9 @@ import (
 
 	"net/http"
 	"regexp"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type UserHandler struct {
@@ -25,24 +25,32 @@ func NewUserHandler(s app.UserService) *UserHandler {
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param user body domain.User true "User data."
+// @Param user body handler.CreateUserRequest true "User data."
 // @Success 201 {object} domain.User "User successfully created"
 // @Failure 400 {object} ErrorResponse "Invalid input"
 // @Failure 500 {object} ErrorResponse "Internal server error"
 // @Router /users [post]
 func (h *UserHandler) CreateUser(c *gin.Context) {
-	var newUser domain.User
-	if err := c.BindJSON(&newUser); err != nil {
+	var req CreateUserRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, ErrorResponse{Error: "Invalid JSON"})
 		return
 	}
 
-	if err := h.service.CreateUser(newUser); err != nil {
+	user := domain.User{
+		ID:    uuid.New(),
+		Name:  req.Name,
+		Email: req.Email,
+		City:  req.City,
+		Phone: req.Phone,
+	}
+
+	if err := h.service.CreateUser(user); err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, ErrorResponse{Error: "Service error"})
 		return
 	}
 
-	c.IndentedJSON(http.StatusCreated, newUser)
+	c.IndentedJSON(http.StatusCreated, user)
 }
 
 // GetAllUsers godoc
@@ -70,13 +78,14 @@ func (h *UserHandler) GetAllUsers(c *gin.Context) {
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param id path int true "User ID"
+// @Param id path string true "User ID (UUID)"
 // @Success 200 {object} domain.User "User found"
 // @Failure 400 {object} ErrorResponse "Invalid user ID"
 // @Failure 404 {object} ErrorResponse "User not found"
 // @Router /users/{id} [get]
 func (h *UserHandler) GetUserByID(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	idParam := c.Param("id")
+	id, err := uuid.Parse(idParam)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, ErrorResponse{Error: "Invalid user ID"})
 		return
@@ -134,7 +143,7 @@ func isValidEmail(email string) bool {
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param id path int true "User ID"
+// @Param id path string true "User ID (UUID)"
 // @Param user body domain.User true "Updated user data"
 // @Success 200 {object} domain.User "User successfully updated"
 // @Failure 400 {object} ErrorResponse "Invalid input"
@@ -142,7 +151,8 @@ func isValidEmail(email string) bool {
 // @Failure 500 {object} ErrorResponse "Internal server error"
 // @Router /users/{id} [put]
 func (h *UserHandler) UpdateUser(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	idParam := c.Param("id")
+	id, err := uuid.Parse(idParam)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, ErrorResponse{Error: "Invalid user ID"})
 		return
@@ -153,7 +163,7 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, ErrorResponse{Error: "Invalid JSON"})
 		return
 	}
-	updatedUser.ID = uint(id)
+	updatedUser.ID = id
 
 	if err := h.service.UpdateUser(updatedUser); err != nil {
 		c.IndentedJSON(http.StatusNotFound, ErrorResponse{Error: "User not found"})
@@ -169,14 +179,15 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param id path int true "User ID"
+// @Param id path string true "User ID (UUID)"
 // @Success 204 "User successfully deleted"
 // @Failure 400 {object} ErrorResponse "Invalid user ID"
 // @Failure 404 {object} ErrorResponse "User not found"
 // @Failure 500 {object} ErrorResponse "Internal server error"
 // @Router /users/{id} [delete]
 func (h *UserHandler) DeleteUser(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	idParam := c.Param("id")
+	id, err := uuid.Parse(idParam)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, ErrorResponse{Error: "Invalid user ID"})
 		return

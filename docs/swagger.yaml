@@ -4,7 +4,7 @@ definitions:
     properties:
       activity_id:
         description: Foreign key to the swim activity/session
-        type: integer
+        type: string
       distance:
         description: Distance in meters
         type: number
@@ -12,7 +12,7 @@ definitions:
         description: Duration of the interval in string format, e.g., "1h30m"
         type: string
       id:
-        type: integer
+        type: string
       notes:
         description: Optional notes like "felt strong", "used fins"
         type: string
@@ -71,11 +71,62 @@ definitions:
       email:
         type: string
       id:
-        type: integer
+        type: string
       name:
         type: string
       phone:
         type: string
+    type: object
+  handler.CreateIntervalRequest:
+    properties:
+      activity_id:
+        description: ActivityID is the ID of the associated activity/session
+        type: string
+      distance:
+        description: Distance in meters
+        type: number
+      duration:
+        description: Duration of the interval in string format, e.g., "1h30m"
+        type: string
+      notes:
+        description: Notes are optional remarks such as "felt strong", "used fins"
+        type: string
+      start_time:
+        description: StartTime is the start time of the interval
+        type: string
+      stroke:
+        allOf:
+        - $ref: '#/definitions/domain.StrokeType'
+        description: Stroke is the swimming stroke type like "freestyle", "backstroke",
+          etc.
+      type:
+        allOf:
+        - $ref: '#/definitions/domain.IntervalType'
+        description: Type is one of the predefined interval types like "swim", "rest",
+          etc.
+    required:
+    - activity_id
+    - distance
+    - duration
+    - start_time
+    - stroke
+    - type
+    type: object
+  handler.CreateUserRequest:
+    properties:
+      city:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+    required:
+    - city
+    - email
+    - name
+    - phone
     type: object
   handler.ErrorResponse:
     properties:
@@ -103,7 +154,7 @@ paths:
         name: interval
         required: true
         schema:
-          $ref: '#/definitions/domain.Interval'
+          $ref: '#/definitions/handler.CreateIntervalRequest'
       produces:
       - application/json
       responses:
@@ -153,7 +204,7 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/domain.User'
+          $ref: '#/definitions/handler.CreateUserRequest'
       produces:
       - application/json
       responses:
@@ -178,11 +229,11 @@ paths:
       - application/json
       description: Deletes the user with the specified ID
       parameters:
-      - description: User ID
+      - description: User ID (UUID)
         in: path
         name: id
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -209,11 +260,11 @@ paths:
       description: Returns the user with name, email, city, and phone for the specified
         ID
       parameters:
-      - description: User ID
+      - description: User ID (UUID)
         in: path
         name: id
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -237,11 +288,11 @@ paths:
       - application/json
       description: Updates the user with the provided ID, name, email, city, and phone
       parameters:
-      - description: User ID
+      - description: User ID (UUID)
         in: path
         name: id
         required: true
-        type: integer
+        type: string
       - description: Updated user data
         in: body
         name: user

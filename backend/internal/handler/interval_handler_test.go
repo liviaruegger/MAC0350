@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/liviaruegger/MAC0350/backend/internal/domain"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -34,9 +35,8 @@ func TestCreateInterval(t *testing.T) {
 	router.POST("/intervals", handler.CreateInterval)
 
 	t.Run("success", func(t *testing.T) {
-		newInterval := domain.Interval{
-			ID:         1,
-			ActivityID: 1,
+		newIntervalReq := CreateIntervalRequest{
+			ActivityID: uuid.New(),
 			StartTime:  time.Date(2024, 6, 1, 10, 0, 0, 0, time.UTC),
 			Duration:   domain.DurationString((30 * time.Minute).String()),
 			Distance:   1000,
@@ -44,9 +44,20 @@ func TestCreateInterval(t *testing.T) {
 			Stroke:     domain.StrokeType("freestyle"),
 			Notes:      "Test interval",
 		}
-		mockService.On("CreateInterval", newInterval).Return(nil)
 
-		body, _ := json.Marshal(newInterval)
+		expectedInterval := domain.Interval{
+			ActivityID: newIntervalReq.ActivityID,
+			StartTime:  newIntervalReq.StartTime,
+			Duration:   newIntervalReq.Duration,
+			Distance:   newIntervalReq.Distance,
+			Type:       newIntervalReq.Type,
+			Stroke:     newIntervalReq.Stroke,
+			Notes:      newIntervalReq.Notes,
+		}
+
+		mockService.On("CreateInterval", expectedInterval).Return(nil)
+
+		body, _ := json.Marshal(newIntervalReq)
 		req, _ := http.NewRequest(http.MethodPost, "/intervals", bytes.NewBuffer(body))
 		req.Header.Set("Content-Type", "application/json")
 		resp := httptest.NewRecorder()
@@ -54,7 +65,7 @@ func TestCreateInterval(t *testing.T) {
 		router.ServeHTTP(resp, req)
 
 		assert.Equal(t, http.StatusCreated, resp.Code)
-		mockService.AssertCalled(t, "CreateInterval", newInterval)
+		mockService.AssertCalled(t, "CreateInterval", expectedInterval)
 	})
 
 	t.Run("invalid JSON", func(t *testing.T) {
@@ -72,9 +83,8 @@ func TestCreateInterval(t *testing.T) {
 		mockService.ExpectedCalls = nil
 		mockService.Calls = nil
 
-		newInterval := domain.Interval{
-			ID:         1,
-			ActivityID: 1,
+		newIntervalReq := CreateIntervalRequest{
+			ActivityID: uuid.New(),
 			StartTime:  time.Date(2024, 6, 1, 10, 0, 0, 0, time.UTC),
 			Duration:   domain.DurationString((30 * time.Minute).String()),
 			Distance:   1000,
@@ -82,18 +92,28 @@ func TestCreateInterval(t *testing.T) {
 			Stroke:     domain.StrokeType("freestyle"),
 			Notes:      "Test interval",
 		}
+
+		expectedInterval := domain.Interval{
+			ActivityID: newIntervalReq.ActivityID,
+			StartTime:  newIntervalReq.StartTime,
+			Duration:   newIntervalReq.Duration,
+			Distance:   newIntervalReq.Distance,
+			Type:       newIntervalReq.Type,
+			Stroke:     newIntervalReq.Stroke,
+			Notes:      newIntervalReq.Notes,
+		}
+
 		mockService.On("CreateInterval", mock.MatchedBy(func(i domain.Interval) bool {
-			return i.ID == newInterval.ID &&
-				i.ActivityID == newInterval.ActivityID &&
-				i.StartTime.Equal(newInterval.StartTime) &&
-				i.Duration == newInterval.Duration &&
-				i.Distance == newInterval.Distance &&
-				i.Type == newInterval.Type &&
-				i.Stroke == newInterval.Stroke &&
-				i.Notes == newInterval.Notes
+			return i.ActivityID == expectedInterval.ActivityID &&
+				i.StartTime.Equal(expectedInterval.StartTime) &&
+				i.Duration == expectedInterval.Duration &&
+				i.Distance == expectedInterval.Distance &&
+				i.Type == expectedInterval.Type &&
+				i.Stroke == expectedInterval.Stroke &&
+				i.Notes == expectedInterval.Notes
 		})).Return(errors.New("service error"))
 
-		body, _ := json.Marshal(newInterval)
+		body, _ := json.Marshal(newIntervalReq)
 		req, _ := http.NewRequest(http.MethodPost, "/intervals", bytes.NewBuffer(body))
 		req.Header.Set("Content-Type", "application/json")
 		resp := httptest.NewRecorder()
@@ -101,6 +121,6 @@ func TestCreateInterval(t *testing.T) {
 		router.ServeHTTP(resp, req)
 
 		assert.Equal(t, http.StatusInternalServerError, resp.Code)
-		mockService.AssertCalled(t, "CreateInterval", newInterval)
+		mockService.AssertCalled(t, "CreateInterval", expectedInterval)
 	})
 }
