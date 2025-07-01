@@ -122,3 +122,36 @@ func (r *PostgresActivityRepository) GetAllActivitiesByUser(userID uuid.UUID) ([
 
 	return activities, nil
 }
+
+func (r *PostgresActivityRepository) UpdateActivity(activity domain.Activity) error {
+	_, err := r.db.Exec(
+		`UPDATE activities SET
+			user_id = $2,
+			start = $3,
+			duration = $4,
+			distance = $5,
+			laps = $6,
+			pool_size = $7,
+			location_type = $8,
+			notes = $9
+		WHERE id = $1`,
+		activity.ID,
+		activity.UserID,
+		activity.Start,
+		int64(activity.Duration.Seconds()),
+		activity.Distance,
+		activity.Laps,
+		activity.PoolSize,
+		string(activity.LocationType),
+		activity.Notes,
+	)
+	return err
+}
+
+func (r *PostgresActivityRepository) DeleteActivity(activityID uuid.UUID) error {
+	_, err := r.db.Exec(
+		`DELETE FROM activities WHERE id = $1`,
+		activityID,
+	)
+	return err
+}
