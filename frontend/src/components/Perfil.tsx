@@ -4,11 +4,13 @@ import { User, Edit, Save, X, Camera, Award, Target, TrendingUp } from 'lucide-r
 const Perfil: React.FC = () => {
 const [isEditing, setIsEditing] = useState(false);
 const [formData, setFormData] = useState({
-	name: 'Alex Johnson',
-	email: 'alex.johnson@example.com',
-	age: 28,
-	height: 175,
-	weight: 72.5,
+	name: 'José Exemplar',
+	email: 'jose@examplo.com',
+	city: 'Exemplópolis',
+	phone: '(00) 0 0000-0000',
+	age: 27,
+	height: 180,
+	weight: 75.5,
 	goals: 'weight_loss'
 });
 
@@ -24,6 +26,8 @@ useEffect(() => {
 		...prevData, // Keep the other fields like age, height, etc.
 		name: data.name,
 		email: data.email,
+		city: data.city,
+		phone: data.phone,
 		}));
 	})
 	.catch(error => {
@@ -32,27 +36,52 @@ useEffect(() => {
 }, []);
 
 const stats = [
-	{ label: 'Total Workouts', value: '156', icon: Target, color: 'emerald' },
-	{ label: 'Calories Burned', value: '43,250', icon: TrendingUp, color: 'orange' },
-	{ label: 'Achievements', value: '23', icon: Award, color: 'blue' },
-	{ label: 'Current Streak', value: '12 days', icon: Target, color: 'purple' }
+	{ label: 'Atividades totais', value: '56', icon: Target, color: 'cyan' },
+	{ label: 'Distância total percorrida', value: '213,7 km', icon: TrendingUp, color: 'orange' },
+	{ label: 'Conquistas', value: '23', icon: Award, color: 'blue' },
+	{ label: 'Sequência atual', value: '15 dias', icon: Target, color: 'purple' }
 ];
 
 const achievements = [
-	{ title: 'First Workout', description: 'Completed your first workout', date: '2023-01-15', earned: true },
-	{ title: '7-Day Streak', description: 'Worked out for 7 consecutive days', date: '2023-02-20', earned: true },
-	{ title: '100 Workouts', description: 'Completed 100 total workouts', date: '2023-06-10', earned: true },
-	{ title: 'Marathon Ready', description: 'Ran 42km in a month', date: 'Not earned', earned: false },
-	{ title: 'Strength Master', description: 'Complete 50 strength workouts', date: '2023-08-15', earned: true },
-	{ title: '30-Day Challenge', description: 'Work out for 30 consecutive days', date: 'Not earned', earned: false }
+	{ title: 'Primeira atividade', description: 'Você completou sua primeira atividade', date: '2023-01-15', earned: true },
+	{ title: 'Sequência de 7 Dias', description: 'Cumpriu 7 dias consecutivos', date: '2023-02-20', earned: true },
+	{ title: '100 Atividades', description: 'Completou um total de 100 atividades', date: '2023-06-10', earned: true },
+	{ title: 'Pronto para a Maratona!', description: 'Nadou 10km em uma sessão', date: 'Não conquistado', earned: false },
+	{ title: 'Desafio de 30 Dias', description: 'Cumpriu 30 dias consecutivos', date: 'Não conquistado', earned: false }
 ];
 
 const handleSave = () => {
-	
+	const userId = "9cdba1c6-9a50-464f-a892-3efd75090243";
 
+	const userToUpdate = {
+		name: formData.name,
+		email: formData.email,
+		// Your form doesn't have city and phone yet, so we'll send empty strings for now.
+		// We can add them to the form later.
+		city: formData.city,
+		phone: formData.phone
+		};
 
-	setIsEditing(false);
-	console.log('Saving profile data:', formData);
+		fetch(`http://localhost:8080/users/${userId}`, {
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(userToUpdate),
+		})
+		.then(response => {
+			if (!response.ok) {
+				throw new Error('Failed to update user');
+			}
+			return response.json();
+		})
+		.then(updatedUser => {
+			console.log('Profile updated successfully:', updatedUser);
+			setIsEditing(false); // Exit editing mode only on success
+		})
+		.catch(error => {
+			console.error('Error updating user data:', error);
+		});
 };
 
 const handleCancel = () => {
@@ -182,13 +211,41 @@ return (
 				{isEditing ? (
 				<input
 					type="number"
-					step="0.1"
 					value={formData.weight}
 					onChange={(e) => setFormData({ ...formData, weight: parseFloat(e.target.value) })}
 					className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
 				/>
 				) : (
 				<p className="text-slate-900 font-medium">{formData.weight} kg</p>
+				)}
+			</div>
+
+			<div>
+				<label className="block text-sm font-medium text-slate-700 mb-2">Cidade</label>
+				{isEditing ? (
+				<input
+					type="text"
+					value={formData.weight}
+					onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+					className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+				/>
+				) : (
+				<p className="text-slate-900 font-medium">{formData.city}</p>
+				)}
+			</div>
+
+			
+			<div>
+				<label className="block text-sm font-medium text-slate-700 mb-2">Telefone</label>
+				{isEditing ? (
+				<input
+					type="text"
+					value={formData.phone}
+					onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+					className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+				/>
+				) : (
+				<p className="text-slate-900 font-medium">{formData.phone}</p>
 				)}
 			</div>
 
@@ -203,12 +260,12 @@ return (
 				key={index}
 				className={`p-4 rounded-xl border-2 transition-all ${
 					achievement.earned
-					? 'border-emerald-200 bg-emerald-50'
+					? 'border-cyan-200 bg-cyan-50'
 					: 'border-slate-200 bg-slate-50 opacity-60'
 				}`}
 				>
 				<div className="flex items-center space-x-3">
-					<div className={`p-2 rounded-lg ${achievement.earned ? 'bg-emerald-500' : 'bg-slate-400'}`}>
+					<div className={`p-2 rounded-lg ${achievement.earned ? 'bg-cyan-500' : 'bg-slate-400'}`}>
 					<Award className="h-5 w-5 text-white" />
 					</div>
 					<div className="flex-1">
@@ -225,53 +282,35 @@ return (
 
 		{/* Stats Sidebar */}
 		<div className="space-y-6">
-		{/* Quick Stats */}
-		<div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-			<h3 className="text-lg font-semibold text-slate-900 mb-6">Your Stats</h3>
-			<div className="space-y-4">
-			{stats.map((stat, index) => {
-				const Icon = stat.icon;
-				return (
-				<div key={index} className="flex items-center space-x-4">
-					<div className={`p-3 rounded-xl ${
-					stat.color === 'emerald' ? 'bg-emerald-100' :
-					stat.color === 'orange' ? 'bg-orange-100' :
-					stat.color === 'blue' ? 'bg-blue-100' : 'bg-purple-100'
-					}`}>
-					<Icon className={`h-5 w-5 ${
-						stat.color === 'emerald' ? 'text-emerald-600' :
-						stat.color === 'orange' ? 'text-orange-600' :
-						stat.color === 'blue' ? 'text-blue-600' : 'text-purple-600'
-					}`} />
+			{/* Quick Stats */}
+			<div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+				<h3 className="text-lg font-semibold text-slate-900 mb-6">Seus números</h3>
+				<div className="space-y-4">
+				{stats.map((stat, index) => {
+					const Icon = stat.icon;
+					return (
+					<div key={index} className="flex items-center space-x-4">
+						<div className={`p-3 rounded-xl ${
+						stat.color === 'emerald' ? 'bg-emerald-100' :
+						stat.color === 'orange' ? 'bg-orange-100' :
+						stat.color === 'blue' ? 'bg-blue-100' : 'bg-purple-100'
+						}`}>
+						<Icon className={`h-5 w-5 ${
+							stat.color === 'emerald' ? 'text-emerald-600' :
+							stat.color === 'orange' ? 'text-orange-600' :
+							stat.color === 'blue' ? 'text-blue-600' : 'text-purple-600'
+						}`} />
+						</div>
+						<div className="flex-1">
+						<p className="text-sm text-slate-600">{stat.label}</p>
+						<p className="text-lg font-semibold text-slate-900">{stat.value}</p>
+						</div>
 					</div>
-					<div className="flex-1">
-					<p className="text-sm text-slate-600">{stat.label}</p>
-					<p className="text-lg font-semibold text-slate-900">{stat.value}</p>
-					</div>
+					);
+				})}
 				</div>
-				);
-			})}
 			</div>
-		</div>
 
-		{/* BMI Calculator */}
-		<div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-			<h3 className="text-lg font-semibold text-slate-900 mb-4">BMI Calculator</h3>
-			<div className="text-center">
-			<div className="text-3xl font-bold text-emerald-600 mb-2">
-				{(formData.weight / Math.pow(formData.height / 100, 2)).toFixed(1)}
-			</div>
-			<div className="text-sm text-slate-600 mb-4">Normal Weight</div>
-			<div className="w-full bg-slate-200 rounded-full h-2">
-				<div className="bg-emerald-500 h-2 rounded-full" style={{ width: '60%' }} />
-			</div>
-			<div className="flex justify-between text-xs text-slate-500 mt-2">
-				<span>Underweight</span>
-				<span>Normal</span>
-				<span>Overweight</span>
-			</div>
-			</div>
-		</div>
 		</div>
 	</div>
 	</div>
