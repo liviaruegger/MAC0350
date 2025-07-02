@@ -11,6 +11,17 @@ services:
     # volumes:
       # - .:/app
 
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - web
+
   db:
     image: postgres:15
     environment:
