@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { BarChart3, Settings, Target, User } from 'lucide-react';
 import Dashboard from './components/Dashboard';
 import Perfil from './components/Perfil';
