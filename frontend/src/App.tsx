@@ -22,7 +22,6 @@ const renderContent = () => {
 		return <Dashboard />;
 	case 'atividade-log':
 		return <AtividadeLog />
-	case 'perfil':
 	case 'historico':
 		return <Historico />
 	case 'perfil':
