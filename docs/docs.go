@@ -15,6 +15,52 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/activities": {
+            "post": {
+                "description": "Creates a swim activity for a specific user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "activities"
+                ],
+                "summary": "Create a new activity",
+                "parameters": [
+                    {
+                        "description": "Activity data",
+                        "name": "activity",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.CreateActivityRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Activity successfully created",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Activity"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/intervals": {
             "post": {
                 "description": "Creates an interval with the data provided in the request body",
@@ -326,9 +372,104 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/users/{user_id}/activities": {
+            "get": {
+                "description": "Retrieves all swim activities and their intervals for a given user ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "activities"
+                ],
+                "summary": "Get all activities of a user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID (UUID)",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.GetActivitiesByUserResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid user ID",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "User not found or no activities",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "domain.Activity": {
+            "type": "object",
+            "properties": {
+                "distance": {
+                    "description": "Total distance in meters",
+                    "type": "number"
+                },
+                "duration": {
+                    "description": "Duration of the activity in string format, e.g., \"1h30m\"",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "ID is the unique identifier for the activity (PK)",
+                    "type": "string"
+                },
+                "laps": {
+                    "description": "Number of pool laps",
+                    "type": "integer"
+                },
+                "location_type": {
+                    "description": "\"pool\" or \"open_water\"",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.LocationType"
+                        }
+                    ]
+                },
+                "notes": {
+                    "description": "Optional notes",
+                    "type": "string"
+                },
+                "pool_size": {
+                    "description": "Pool length in meters (0 if open water)",
+                    "type": "number"
+                },
+                "start": {
+                    "description": "Start time of the activity",
+                    "type": "string"
+                },
+                "user_id": {
+                    "description": "UserID is the ID of the user who performed the activity (FK)",
+                    "type": "string"
+                }
+            }
+        },
         "domain.Interval": {
             "type": "object",
             "properties": {
@@ -349,10 +490,6 @@ const docTemplate = `{
                 },
                 "notes": {
                     "description": "Optional notes like \"felt strong\", \"used fins\"",
-                    "type": "string"
-                },
-                "start_time": {
-                    "description": "Start time of the interval",
                     "type": "string"
                 },
                 "stroke": {
@@ -396,6 +533,17 @@ const docTemplate = `{
                 "IntervalCoolDown"
             ]
         },
+        "domain.LocationType": {
+            "type": "string",
+            "enum": [
+                "pool",
+                "open_water"
+            ],
+            "x-enum-varnames": [
+                "LocationPool",
+                "LocationOpenWater"
+            ]
+        },
         "domain.StrokeType": {
             "type": "string",
             "enum": [
@@ -435,13 +583,202 @@ const docTemplate = `{
                 }
             }
         },
+        "entity.Activity": {
+            "type": "object",
+            "properties": {
+                "distance": {
+                    "description": "Total distance in meters",
+                    "type": "number"
+                },
+                "duration": {
+                    "description": "Duration of the activity in string format, e.g., \"1h30m\"",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "ID is the unique identifier for the activity (PK)",
+                    "type": "string"
+                },
+                "intervals": {
+                    "description": "Intervals are the segments of the swim session",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Interval"
+                    }
+                },
+                "laps": {
+                    "description": "Number of pool laps",
+                    "type": "integer"
+                },
+                "location_type": {
+                    "description": "\"pool\" or \"open_water\"",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/entity.LocationType"
+                        }
+                    ]
+                },
+                "notes": {
+                    "description": "Optional notes",
+                    "type": "string"
+                },
+                "pool_size": {
+                    "description": "Pool length in meters (0 if open water)",
+                    "type": "number"
+                },
+                "start": {
+                    "description": "Start time of the activity",
+                    "type": "string"
+                },
+                "user_id": {
+                    "description": "UserID is the ID of the user who performed the activity (FK)",
+                    "type": "string"
+                }
+            }
+        },
+        "entity.Interval": {
+            "type": "object",
+            "properties": {
+                "activity_id": {
+                    "description": "Foreign key to the swim activity/session",
+                    "type": "string"
+                },
+                "distance": {
+                    "description": "Distance in meters",
+                    "type": "number"
+                },
+                "duration": {
+                    "description": "Duration of the interval in string format, e.g., \"1h30m\"",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "notes": {
+                    "description": "Optional notes like \"felt strong\", \"used fins\"",
+                    "type": "string"
+                },
+                "stroke": {
+                    "description": "Type of swimming stroke",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/entity.StrokeType"
+                        }
+                    ]
+                },
+                "type": {
+                    "description": "One of the predefined types",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/entity.IntervalType"
+                        }
+                    ]
+                }
+            }
+        },
+        "entity.IntervalType": {
+            "type": "string",
+            "enum": [
+                "swim",
+                "rest",
+                "drill",
+                "kick",
+                "pull",
+                "warmup",
+                "main_set",
+                "cooldown"
+            ],
+            "x-enum-varnames": [
+                "IntervalSwim",
+                "IntervalRest",
+                "IntervalDrill",
+                "IntervalKick",
+                "IntervalPull",
+                "IntervalWarmUp",
+                "IntervalMainSet",
+                "IntervalCoolDown"
+            ]
+        },
+        "entity.LocationType": {
+            "type": "string",
+            "enum": [
+                "pool",
+                "open_water"
+            ],
+            "x-enum-varnames": [
+                "LocationPool",
+                "LocationOpenWater"
+            ]
+        },
+        "entity.StrokeType": {
+            "type": "string",
+            "enum": [
+                "freestyle",
+                "backstroke",
+                "breaststroke",
+                "butterfly",
+                "medley",
+                "unknown"
+            ],
+            "x-enum-varnames": [
+                "StrokeFreestyle",
+                "StrokeBackstroke",
+                "StrokeBreaststroke",
+                "StrokeButterfly",
+                "StrokeMedley",
+                "StrokeUnknown"
+            ]
+        },
+        "handler.CreateActivityRequest": {
+            "type": "object",
+            "required": [
+                "distance",
+                "duration",
+                "laps",
+                "location_type",
+                "pool_size",
+                "user_id"
+            ],
+            "properties": {
+                "distance": {
+                    "description": "Total distance in meters",
+                    "type": "number"
+                },
+                "duration": {
+                    "description": "Start time of the activity\nStart time.Time ` + "`" + `json:\"start\"` + "`" + ` // TODO - must implement format handling\nDuration of the activity in a string format, e.g., \"1h30m\"",
+                    "type": "string"
+                },
+                "laps": {
+                    "description": "Number of pool laps",
+                    "type": "integer"
+                },
+                "location_type": {
+                    "description": "\"pool\" or \"open_water\"",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.LocationType"
+                        }
+                    ]
+                },
+                "notes": {
+                    "description": "Optional notes",
+                    "type": "string"
+                },
+                "pool_size": {
+                    "description": "Pool size in meters (0 if open water)",
+                    "type": "number"
+                },
+                "user_id": {
+                    "description": "ID of the user who performed the activity",
+                    "type": "string"
+                }
+            }
+        },
         "handler.CreateIntervalRequest": {
             "type": "object",
             "required": [
                 "activity_id",
                 "distance",
                 "duration",
-                "start_time",
                 "stroke",
                 "type"
             ],
@@ -460,10 +797,6 @@ const docTemplate = `{
                 },
                 "notes": {
                     "description": "Notes are optional remarks such as \"felt strong\", \"used fins\"",
-                    "type": "string"
-                },
-                "start_time": {
-                    "description": "StartTime is the start time of the interval",
                     "type": "string"
                 },
                 "stroke": {
@@ -513,6 +846,17 @@ const docTemplate = `{
                 "error": {
                     "description": "Error is a description of what went wrong.\nExample: Service error",
                     "type": "string"
+                }
+            }
+        },
+        "handler.GetActivitiesByUserResponse": {
+            "type": "object",
+            "properties": {
+                "activities": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Activity"
+                    }
                 }
             }
         }

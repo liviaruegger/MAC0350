@@ -37,7 +37,6 @@ func TestCreateInterval(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		newIntervalReq := CreateIntervalRequest{
 			ActivityID: uuid.New(),
-			StartTime:  time.Date(2024, 6, 1, 10, 0, 0, 0, time.UTC),
 			Duration:   domain.DurationString((30 * time.Minute).String()),
 			Distance:   1000,
 			Type:       domain.IntervalType("swim"),
@@ -47,7 +46,6 @@ func TestCreateInterval(t *testing.T) {
 
 		expectedInterval := domain.Interval{
 			ActivityID: newIntervalReq.ActivityID,
-			StartTime:  newIntervalReq.StartTime,
 			Duration:   newIntervalReq.Duration,
 			Distance:   newIntervalReq.Distance,
 			Type:       newIntervalReq.Type,
@@ -85,7 +83,6 @@ func TestCreateInterval(t *testing.T) {
 
 		newIntervalReq := CreateIntervalRequest{
 			ActivityID: uuid.New(),
-			StartTime:  time.Date(2024, 6, 1, 10, 0, 0, 0, time.UTC),
 			Duration:   domain.DurationString((30 * time.Minute).String()),
 			Distance:   1000,
 			Type:       domain.IntervalType("swim"),
@@ -95,7 +92,6 @@ func TestCreateInterval(t *testing.T) {
 
 		expectedInterval := domain.Interval{
 			ActivityID: newIntervalReq.ActivityID,
-			StartTime:  newIntervalReq.StartTime,
 			Duration:   newIntervalReq.Duration,
 			Distance:   newIntervalReq.Distance,
 			Type:       newIntervalReq.Type,
@@ -105,7 +101,6 @@ func TestCreateInterval(t *testing.T) {
 
 		mockService.On("CreateInterval", mock.MatchedBy(func(i domain.Interval) bool {
 			return i.ActivityID == expectedInterval.ActivityID &&
-				i.StartTime.Equal(expectedInterval.StartTime) &&
 				i.Duration == expectedInterval.Duration &&
 				i.Distance == expectedInterval.Distance &&
 				i.Type == expectedInterval.Type &&

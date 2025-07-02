@@ -14,11 +14,26 @@ type mockIntervalRepository struct {
 	createFunc func(domain.Interval) error
 }
 
-func (m *mockIntervalRepository) Create(interval domain.Interval) error {
+func (m *mockIntervalRepository) CreateInterval(interval domain.Interval) error {
 	if m.createFunc != nil {
 		return m.createFunc(interval)
 	}
 	return nil
+}
+
+func (m *mockIntervalRepository) GetIntervalsByActivity(activityID uuid.UUID) ([]domain.Interval, error) {
+	// Mock implementation for testing purposes
+	return []domain.Interval{
+		{
+			ID:         uuid.New(),
+			ActivityID: activityID,
+			Duration:   domain.DurationString("30m"),
+			Distance:   1000,
+			Type:       domain.IntervalType("swim"),
+			Stroke:     domain.StrokeType("freestyle"),
+			Notes:      "Mock interval",
+		},
+	}, nil
 }
 
 func TestNewIntervalService(t *testing.T) {
@@ -44,7 +59,6 @@ func TestCreateInterval(t *testing.T) {
 			interval: domain.Interval{
 				ID:         uuid.New(),
 				ActivityID: uuid.New(),
-				StartTime:  time.Date(2024, 6, 1, 10, 0, 0, 0, time.UTC),
 				Duration:   domain.DurationString((30 * time.Minute).String()),
 				Distance:   1000,
 				Type:       domain.IntervalType("swim"),

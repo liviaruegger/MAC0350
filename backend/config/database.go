@@ -59,7 +59,6 @@ func createTables(db *sql.DB) {
 	CREATE TABLE IF NOT EXISTS intervals (
 		id UUID PRIMARY KEY,
 		activity_id UUID NOT NULL REFERENCES activities(id) ON DELETE CASCADE,
-		start_time TIMESTAMP NOT NULL,
 		duration BIGINT NOT NULL,
 		distance FLOAT NOT NULL,
 		type TEXT NOT NULL CHECK (

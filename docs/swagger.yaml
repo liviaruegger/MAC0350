@@ -1,5 +1,36 @@
 basePath: /
 definitions:
+  domain.Activity:
+    properties:
+      distance:
+        description: Total distance in meters
+        type: number
+      duration:
+        description: Duration of the activity in string format, e.g., "1h30m"
+        type: string
+      id:
+        description: ID is the unique identifier for the activity (PK)
+        type: string
+      laps:
+        description: Number of pool laps
+        type: integer
+      location_type:
+        allOf:
+        - $ref: '#/definitions/domain.LocationType'
+        description: '"pool" or "open_water"'
+      notes:
+        description: Optional notes
+        type: string
+      pool_size:
+        description: Pool length in meters (0 if open water)
+        type: number
+      start:
+        description: Start time of the activity
+        type: string
+      user_id:
+        description: UserID is the ID of the user who performed the activity (FK)
+        type: string
+    type: object
   domain.Interval:
     properties:
       activity_id:
@@ -15,9 +46,6 @@ definitions:
         type: string
       notes:
         description: Optional notes like "felt strong", "used fins"
-        type: string
-      start_time:
-        description: Start time of the interval
         type: string
       stroke:
         allOf:
@@ -48,6 +76,14 @@ definitions:
     - IntervalWarmUp
     - IntervalMainSet
     - IntervalCoolDown
+  domain.LocationType:
+    enum:
+    - pool
+    - open_water
+    type: string
+    x-enum-varnames:
+    - LocationPool
+    - LocationOpenWater
   domain.StrokeType:
     enum:
     - freestyle
@@ -77,6 +113,146 @@ definitions:
       phone:
         type: string
     type: object
+  entity.Activity:
+    properties:
+      distance:
+        description: Total distance in meters
+        type: number
+      duration:
+        description: Duration of the activity in string format, e.g., "1h30m"
+        type: string
+      id:
+        description: ID is the unique identifier for the activity (PK)
+        type: string
+      intervals:
+        description: Intervals are the segments of the swim session
+        items:
+          $ref: '#/definitions/entity.Interval'
+        type: array
+      laps:
+        description: Number of pool laps
+        type: integer
+      location_type:
+        allOf:
+        - $ref: '#/definitions/entity.LocationType'
+        description: '"pool" or "open_water"'
+      notes:
+        description: Optional notes
+        type: string
+      pool_size:
+        description: Pool length in meters (0 if open water)
+        type: number
+      start:
+        description: Start time of the activity
+        type: string
+      user_id:
+        description: UserID is the ID of the user who performed the activity (FK)
+        type: string
+    type: object
+  entity.Interval:
+    properties:
+      activity_id:
+        description: Foreign key to the swim activity/session
+        type: string
+      distance:
+        description: Distance in meters
+        type: number
+      duration:
+        description: Duration of the interval in string format, e.g., "1h30m"
+        type: string
+      id:
+        type: string
+      notes:
+        description: Optional notes like "felt strong", "used fins"
+        type: string
+      stroke:
+        allOf:
+        - $ref: '#/definitions/entity.StrokeType'
+        description: Type of swimming stroke
+      type:
+        allOf:
+        - $ref: '#/definitions/entity.IntervalType'
+        description: One of the predefined types
+    type: object
+  entity.IntervalType:
+    enum:
+    - swim
+    - rest
+    - drill
+    - kick
+    - pull
+    - warmup
+    - main_set
+    - cooldown
+    type: string
+    x-enum-varnames:
+    - IntervalSwim
+    - IntervalRest
+    - IntervalDrill
+    - IntervalKick
+    - IntervalPull
+    - IntervalWarmUp
+    - IntervalMainSet
+    - IntervalCoolDown
+  entity.LocationType:
+    enum:
+    - pool
+    - open_water
+    type: string
+    x-enum-varnames:
+    - LocationPool
+    - LocationOpenWater
+  entity.StrokeType:
+    enum:
+    - freestyle
+    - backstroke
+    - breaststroke
+    - butterfly
+    - medley
+    - unknown
+    type: string
+    x-enum-varnames:
+    - StrokeFreestyle
+    - StrokeBackstroke
+    - StrokeBreaststroke
+    - StrokeButterfly
+    - StrokeMedley
+    - StrokeUnknown
+  handler.CreateActivityRequest:
+    properties:
+      distance:
+        description: Total distance in meters
+        type: number
+      duration:
+        description: |-
+          Start time of the activity
+          Start time.Time `json:"start"` // TODO - must implement format handling
+          Duration of the activity in a string format, e.g., "1h30m"
+        type: string
+      laps:
+        description: Number of pool laps
+        type: integer
+      location_type:
+        allOf:
+        - $ref: '#/definitions/domain.LocationType'
+        description: '"pool" or "open_water"'
+      notes:
+        description: Optional notes
+        type: string
+      pool_size:
+        description: Pool size in meters (0 if open water)
+        type: number
+      user_id:
+        description: ID of the user who performed the activity
+        type: string
+    required:
+    - distance
+    - duration
+    - laps
+    - location_type
+    - pool_size
+    - user_id
+    type: object
   handler.CreateIntervalRequest:
     properties:
       activity_id:
@@ -90,9 +266,6 @@ definitions:
         type: string
       notes:
         description: Notes are optional remarks such as "felt strong", "used fins"
-        type: string
-      start_time:
-        description: StartTime is the start time of the interval
         type: string
       stroke:
         allOf:
@@ -108,7 +281,6 @@ definitions:
     - activity_id
     - distance
     - duration
-    - start_time
     - stroke
     - type
     type: object
@@ -136,6 +308,13 @@ definitions:
           Example: Service error
         type: string
     type: object
+  handler.GetActivitiesByUserResponse:
+    properties:
+      activities:
+        items:
+          $ref: '#/definitions/entity.Activity'
+        type: array
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -143,6 +322,36 @@ info:
   title: Swim Tracker API
   version: "1.0"
 paths:
+  /activities:
+    post:
+      consumes:
+      - application/json
+      description: Creates a swim activity for a specific user
+      parameters:
+      - description: Activity data
+        in: body
+        name: activity
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateActivityRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Activity successfully created
+          schema:
+            $ref: '#/definitions/domain.Activity'
+        "400":
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Create a new activity
+      tags:
+      - activities
   /intervals:
     post:
       consumes:
@@ -321,6 +530,40 @@ paths:
       summary: Update an existing user
       tags:
       - users
+  /users/{user_id}/activities:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves all swim activities and their intervals for a given user
+        ID
+      parameters:
+      - description: User ID (UUID)
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.GetActivitiesByUserResponse'
+        "400":
+          description: Invalid user ID
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: User not found or no activities
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Get all activities of a user
+      tags:
+      - activities
   /users/email/{email}:
     get:
       consumes:

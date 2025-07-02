@@ -37,7 +37,6 @@ func (h *IntervalHandler) CreateInterval(c *gin.Context) {
 
 	interval := domain.Interval{
 		ActivityID: req.ActivityID,
-		StartTime:  req.StartTime,
 		Duration:   req.Duration,
 		Distance:   req.Distance,
 		Type:       req.Type,
