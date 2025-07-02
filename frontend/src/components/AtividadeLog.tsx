@@ -25,7 +25,7 @@ interface Activity {
     intervals: Interval[];
     waterTemp?: number;
     notes: string;
-    feeling: 'excellent' | 'good' | 'average' | 'tired' | 'poor';
+    feeling: 'excelente' | 'bem' | 'regular' | 'cansado' | 'mal';
     heartRate?: {
         avg: number;
         max: number;
@@ -45,7 +45,7 @@ const AtividadeLog: React.FC = () => {
         strokes: {},
         intervals: [],
         notes: '',
-        feeling: 'good',
+        feeling: 'bem',
         heartRate: { avg: 0, max: 0 }
     });
 
@@ -80,11 +80,11 @@ const AtividadeLog: React.FC = () => {
     ];
 
     const feelingOptions = [
-        { value: 'excellent', label: 'Excellent', color: 'text-green-600', bg: 'bg-green-100' },
-        { value: 'good', label: 'Good', color: 'text-blue-600', bg: 'bg-blue-100' },
-        { value: 'average', label: 'Average', color: 'text-yellow-600', bg: 'bg-yellow-100' },
-        { value: 'tired', label: 'Tired', color: 'text-orange-600', bg: 'bg-orange-100' },
-        { value: 'poor', label: 'Poor', color: 'text-red-600', bg: 'bg-red-100' }
+        { value: 'excelente', label: 'Excelente', color: 'text-green-600', bg: 'bg-green-100' },
+        { value: 'bem', label: 'Bem', color: 'text-blue-600', bg: 'bg-blue-100' },
+        { value: 'regular', label: 'Regular', color: 'text-yellow-600', bg: 'bg-yellow-100' },
+        { value: 'cansado', label: 'Cansado', color: 'text-orange-600', bg: 'bg-orange-100' },
+        { value: 'mal', label: 'Mal', color: 'text-red-600', bg: 'bg-red-100' }
     ];
 
     const addInterval = () => {
@@ -160,7 +160,7 @@ const AtividadeLog: React.FC = () => {
                     strokes: {},
                     intervals: [],
                     notes: '',
-                    feeling: 'good',
+                    feeling: 'bem',
                     heartRate: { avg: 0, max: 0 }
                 });
                 setSubmitMessage(null);
