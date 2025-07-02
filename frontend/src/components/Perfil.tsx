@@ -107,7 +107,7 @@ return (
 			{!isEditing ? (
 				<button
 				onClick={() => setIsEditing(true)}
-				className="flex items-center space-x-2 px-4 py-2 bg-cyan-500 text-white rounded-xl hover:bg-cyan-600 transition-colors"
+				className="flex items-center space-x-2 px-4 py-2 bg-blue-400 text-white rounded-xl hover:bg-cyan-500 transition-colors"
 				>
 				<Edit className="h-4 w-4" />
 				<span>Editar</span>
@@ -134,7 +134,7 @@ return (
 
 			<div className="flex items-center space-x-6 mb-6">
 			<div className="relative">
-				<div className="w-24 h-24 bg-gradient-to-br from-cyan-400 to-cyan-500 rounded-full flex items-center justify-center">
+				<div className="w-24 h-24 bg-gradient-to-br from-blue-400 to-cyan-400 rounded-full flex items-center justify-center">
 				<User className="h-12 w-12 text-white" />
 				</div>
 				{isEditing && (
@@ -157,7 +157,7 @@ return (
 					type="text"
 					value={formData.name}
 					onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-					className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+					className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
 				/>
 				) : (
 				<p className="text-slate-900 font-medium">{formData.name}</p>
@@ -171,7 +171,7 @@ return (
 					type="email"
 					value={formData.email}
 					onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-					className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+					className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
 				/>
 				) : (
 				<p className="text-slate-900 font-medium">{formData.email}</p>
@@ -185,7 +185,7 @@ return (
 					type="number"
 					value={formData.age}
 					onChange={(e) => setFormData({ ...formData, age: parseInt(e.target.value) })}
-					className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+					className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
 				/>
 				) : (
 				<p className="text-slate-900 font-medium">{formData.age} anos</p>
@@ -199,7 +199,7 @@ return (
 					type="number"
 					value={formData.height}
 					onChange={(e) => setFormData({ ...formData, height: parseInt(e.target.value) })}
-					className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+					className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
 				/>
 				) : (
 				<p className="text-slate-900 font-medium">{formData.height} cm</p>
@@ -213,7 +213,7 @@ return (
 					type="number"
 					value={formData.weight}
 					onChange={(e) => setFormData({ ...formData, weight: parseFloat(e.target.value) })}
-					className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+					className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
 				/>
 				) : (
 				<p className="text-slate-900 font-medium">{formData.weight} kg</p>
@@ -227,7 +227,7 @@ return (
 					type="text"
 					value={formData.weight}
 					onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-					className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+					className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
 				/>
 				) : (
 				<p className="text-slate-900 font-medium">{formData.city}</p>
@@ -242,7 +242,7 @@ return (
 					type="text"
 					value={formData.phone}
 					onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-					className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+					className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
 				/>
 				) : (
 				<p className="text-slate-900 font-medium">{formData.phone}</p>
@@ -265,7 +265,7 @@ return (
 				}`}
 				>
 				<div className="flex items-center space-x-3">
-					<div className={`p-2 rounded-lg ${achievement.earned ? 'bg-cyan-500' : 'bg-slate-400'}`}>
+					<div className={`p-2 rounded-lg ${achievement.earned ? 'bg-blue-400' : 'bg-slate-400'}`}>
 					<Award className="h-5 w-5 text-white" />
 					</div>
 					<div className="flex-1">

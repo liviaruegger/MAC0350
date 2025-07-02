@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BarChart3, Settings, Target, User } from 'lucide-react';
+import { BarChart3, Settings, User, Waves } from 'lucide-react';
 import Dashboard from './components/Dashboard';
 import Perfil from './components/Perfil';
 
@@ -30,10 +30,10 @@ return (
 		<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 		<div className="flex justify-between items-center h-16">
 			<div className="flex items-center space-x-3">
-			<div className="bg-gradient-to-r from-cyan-600 to-cyan-500 p-2 rounded-xl">
-				<Target className="h-6 w-6 text-white" />
+			<div className="bg-gradient-to-r from-blue-500 to-blue-400 p-2 rounded-xl">
+				<Waves className="h-6 w-6 text-white" />
 			</div>
-			<h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-700 to-cyan-600 bg-clip-text text-transparent">
+			<h1 className="text-2xl font-bold bg-gradient-to-r from-blue-700 to-cyan-600 bg-clip-text text-transparent">
 				Swim Tracker
 			</h1>
 			</div>
@@ -56,7 +56,7 @@ return (
 				onClick={() => setActiveTab(item.id)}
 				className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
 					activeTab === item.id
-					? 'bg-gradient-to-r from-cyan-600 to-cyan-500 text-white shadow-lg shadow-emerald-500/25'
+					? 'bg-gradient-to-r from-blue-500 to-cyan-400 text-white shadow-lg shadow-blue-500/25'
 					: 'text-slate-600 hover:bg-white hover:shadow-sm'
 				}`}
 				>
