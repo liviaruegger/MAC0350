@@ -2,18 +2,34 @@ basePath: /
 definitions:
   domain.Activity:
     properties:
+      date:
+        description: Date in ISO 8601 format, e.g., "2023-10-01"
+        type: string
       distance:
         description: Total distance in meters
         type: number
       duration:
         description: Duration of the activity in string format, e.g., "1h30m"
         type: string
+      feeling:
+        allOf:
+        - $ref: '#/definitions/domain.FeelingType'
+        description: Optional feeling after the swim, e.g., "tired"
+      heart_rate_avg:
+        description: Average heart rate during the activity
+        type: integer
+      heart_rate_max:
+        description: Maximum heart rate during the activity
+        type: integer
       id:
         description: ID is the unique identifier for the activity (PK)
         type: string
       laps:
         description: Number of pool laps
         type: integer
+      location_name:
+        description: Optional name for the location, e.g., "CEPE"
+        type: string
       location_type:
         allOf:
         - $ref: '#/definitions/domain.LocationType'
@@ -31,6 +47,20 @@ definitions:
         description: UserID is the ID of the user who performed the activity (FK)
         type: string
     type: object
+  domain.FeelingType:
+    enum:
+    - excellent
+    - good
+    - regular
+    - tired
+    - bad
+    type: string
+    x-enum-varnames:
+    - FeelingExcellent
+    - FeelingGood
+    - FeelingRegular
+    - FeelingTired
+    - FeelingBad
   domain.Interval:
     properties:
       activity_id:
@@ -115,12 +145,28 @@ definitions:
     type: object
   entity.Activity:
     properties:
+      avg_pace_per_100m:
+        description: Average pace in seconds per 100 meters, formatted mm:ss
+        type: string
+      date:
+        description: Date in ISO 8601 format, e.g., "2023-10-01"
+        type: string
       distance:
         description: Total distance in meters
         type: number
       duration:
         description: Duration of the activity in string format, e.g., "1h30m"
         type: string
+      feeling:
+        allOf:
+        - $ref: '#/definitions/entity.FeelingType'
+        description: Optional feeling after the swim, e.g., "tired"
+      heart_rate_avg:
+        description: Average heart rate during the activity
+        type: integer
+      heart_rate_max:
+        description: Maximum heart rate during the activity
+        type: integer
       id:
         description: ID is the unique identifier for the activity (PK)
         type: string
@@ -132,6 +178,9 @@ definitions:
       laps:
         description: Number of pool laps
         type: integer
+      location_name:
+        description: Optional name for the location, e.g., "CEPE"
+        type: string
       location_type:
         allOf:
         - $ref: '#/definitions/entity.LocationType'
@@ -149,6 +198,20 @@ definitions:
         description: UserID is the ID of the user who performed the activity (FK)
         type: string
     type: object
+  entity.FeelingType:
+    enum:
+    - excellent
+    - good
+    - regular
+    - tired
+    - bad
+    type: string
+    x-enum-varnames:
+    - FeelingExcellent
+    - FeelingGood
+    - FeelingRegular
+    - FeelingTired
+    - FeelingBad
   entity.Interval:
     properties:
       activity_id:
@@ -220,6 +283,9 @@ definitions:
     - StrokeUnknown
   handler.CreateActivityRequest:
     properties:
+      date:
+        description: Date in ISO 8601 format, e.g., "2023-10-01"
+        type: string
       distance:
         description: Total distance in meters
         type: number
@@ -229,9 +295,22 @@ definitions:
           Start time.Time `json:"start"` // TODO - must implement format handling
           Duration of the activity in a string format, e.g., "1h30m"
         type: string
+      feeling:
+        allOf:
+        - $ref: '#/definitions/domain.FeelingType'
+        description: Optional feeling after the swim, e.g., "tired"
+      heart_rate_avg:
+        description: Average heart rate during the activity
+        type: integer
+      heart_rate_max:
+        description: Maximum heart rate during the activity
+        type: integer
       laps:
         description: Number of pool laps
         type: integer
+      location_name:
+        description: Optional name for the location, e.g., "CEPE"
+        type: string
       location_type:
         allOf:
         - $ref: '#/definitions/domain.LocationType'
@@ -246,6 +325,7 @@ definitions:
         description: ID of the user who performed the activity
         type: string
     required:
+    - date
     - distance
     - duration
     - laps

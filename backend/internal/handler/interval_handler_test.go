@@ -52,16 +52,15 @@ func TestCreateInterval(t *testing.T) {
 			Notes:      "Test interval",
 		}
 
-		expectedInterval := domain.Interval{
-			ActivityID: newIntervalReq.ActivityID,
-			Duration:   newIntervalReq.Duration,
-			Distance:   newIntervalReq.Distance,
-			Type:       newIntervalReq.Type,
-			Stroke:     newIntervalReq.Stroke,
-			Notes:      newIntervalReq.Notes,
-		}
-
-		mockService.On("CreateInterval", expectedInterval).Return(nil)
+		// Usamos MatchedBy para ignorar o ID aleatório gerado
+		mockService.On("CreateInterval", mock.MatchedBy(func(i domain.Interval) bool {
+			return i.ActivityID == newIntervalReq.ActivityID &&
+				i.Duration == newIntervalReq.Duration &&
+				i.Distance == newIntervalReq.Distance &&
+				i.Type == newIntervalReq.Type &&
+				i.Stroke == newIntervalReq.Stroke &&
+				i.Notes == newIntervalReq.Notes
+		})).Return(nil)
 
 		body, _ := json.Marshal(newIntervalReq)
 		req, _ := http.NewRequest(http.MethodPost, "/intervals", bytes.NewBuffer(body))
@@ -71,7 +70,7 @@ func TestCreateInterval(t *testing.T) {
 		router.ServeHTTP(resp, req)
 
 		assert.Equal(t, http.StatusCreated, resp.Code)
-		mockService.AssertCalled(t, "CreateInterval", expectedInterval)
+		mockService.AssertExpectations(t)
 	})
 
 	t.Run("invalid JSON", func(t *testing.T) {
@@ -85,10 +84,6 @@ func TestCreateInterval(t *testing.T) {
 	})
 
 	t.Run("service error", func(t *testing.T) {
-		// Clear previous expectations
-		mockService.ExpectedCalls = nil
-		mockService.Calls = nil
-
 		newIntervalReq := CreateIntervalRequest{
 			ActivityID: uuid.New(),
 			Duration:   domain.DurationString((30 * time.Minute).String()),
@@ -98,22 +93,13 @@ func TestCreateInterval(t *testing.T) {
 			Notes:      "Test interval",
 		}
 
-		expectedInterval := domain.Interval{
-			ActivityID: newIntervalReq.ActivityID,
-			Duration:   newIntervalReq.Duration,
-			Distance:   newIntervalReq.Distance,
-			Type:       newIntervalReq.Type,
-			Stroke:     newIntervalReq.Stroke,
-			Notes:      newIntervalReq.Notes,
-		}
-
 		mockService.On("CreateInterval", mock.MatchedBy(func(i domain.Interval) bool {
-			return i.ActivityID == expectedInterval.ActivityID &&
-				i.Duration == expectedInterval.Duration &&
-				i.Distance == expectedInterval.Distance &&
-				i.Type == expectedInterval.Type &&
-				i.Stroke == expectedInterval.Stroke &&
-				i.Notes == expectedInterval.Notes
+			return i.ActivityID == newIntervalReq.ActivityID &&
+				i.Duration == newIntervalReq.Duration &&
+				i.Distance == newIntervalReq.Distance &&
+				i.Type == newIntervalReq.Type &&
+				i.Stroke == newIntervalReq.Stroke &&
+				i.Notes == newIntervalReq.Notes
 		})).Return(errors.New("service error"))
 
 		body, _ := json.Marshal(newIntervalReq)
@@ -124,6 +110,6 @@ func TestCreateInterval(t *testing.T) {
 		router.ServeHTTP(resp, req)
 
 		assert.Equal(t, http.StatusInternalServerError, resp.Code)
-		mockService.AssertCalled(t, "CreateInterval", expectedInterval)
+		mockService.AssertExpectations(t)
 	})
 }

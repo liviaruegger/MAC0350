@@ -41,12 +41,17 @@ func (h *ActivityHandler) CreateActivity(c *gin.Context) {
 	activity := domain.Activity{
 		ID:           uuid.New(),
 		UserID:       req.UserID,
-		Start:        time.Now(), // TODO - implement format handling to allow custom start times
+		Date:         req.Date,
+		Start:        time.Now(), // Field 'Start' is currently unused by the frontend
 		Duration:     req.Duration,
 		Distance:     req.Distance,
 		Laps:         req.Laps,
 		PoolSize:     req.PoolSize,
 		LocationType: req.LocationType,
+		LocationName: req.LocationName,
+		Feeling:      req.Feeling,
+		HeartRateAvg: req.HeartRateAvg,
+		HeartRateMax: req.HeartRateMax,
 		Notes:        req.Notes,
 	}
 
