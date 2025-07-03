@@ -1,8 +1,6 @@
 package handler
 
 import (
-	"time"
-
 	"github.com/google/uuid"
 	"github.com/liviaruegger/MAC0350/backend/internal/domain"
 )
@@ -15,12 +13,36 @@ type CreateUserRequest struct {
 	Phone string `json:"phone" binding:"required"`
 }
 
+// CreateActivityRequest represents the request body for creating a new activity
+type CreateActivityRequest struct {
+	// ID of the user who performed the activity
+	UserID uuid.UUID `json:"user_id" binding:"required"`
+	// Start time of the activity
+	// Start time.Time `json:"start"` // TODO - must implement format handling
+	// Duration of the activity in a string format, e.g., "1h30m"
+	Duration domain.DurationString `json:"duration" binding:"required"`
+	// Total distance in meters
+	Distance float64 `json:"distance" binding:"required"`
+	// Number of pool laps
+	Laps int `json:"laps" binding:"required"`
+	// Pool size in meters (0 if open water)
+	PoolSize float64 `json:"pool_size" binding:"required"`
+	// "pool" or "open_water"
+	LocationType domain.LocationType `json:"location_type" binding:"required"`
+	// Optional notes
+	Notes string `json:"notes"`
+}
+
+// GetActivitiesByUserRequest represents the request parameters for fetching activities by user ID
+type GetActivitiesByUserRequest struct {
+	// UserID is the ID of the user whose activities are being requested
+	UserID uuid.UUID `json:"user_id" binding:"required"`
+}
+
 // CreateIntervalRequest represents the request body for creating a new interval
 type CreateIntervalRequest struct {
 	// ActivityID is the ID of the associated activity/session
 	ActivityID uuid.UUID `json:"activity_id" binding:"required"`
-	// StartTime is the start time of the interval
-	StartTime time.Time `json:"start_time" binding:"required"`
 	// Duration of the interval in string format, e.g., "1h30m"
 	Duration domain.DurationString `json:"duration" binding:"required"`
 	// Distance in meters

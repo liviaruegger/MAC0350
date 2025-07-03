@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/google/uuid"
 	"github.com/liviaruegger/MAC0350/backend/internal/app"
 	"github.com/liviaruegger/MAC0350/backend/internal/domain"
 
@@ -36,8 +37,8 @@ func (h *IntervalHandler) CreateInterval(c *gin.Context) {
 	}
 
 	interval := domain.Interval{
+		ID:         uuid.New(),
 		ActivityID: req.ActivityID,
-		StartTime:  req.StartTime,
 		Duration:   req.Duration,
 		Distance:   req.Distance,
 		Type:       req.Type,

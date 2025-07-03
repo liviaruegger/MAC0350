@@ -12,7 +12,10 @@ import (
 type ActivityRepository interface {
 	CreateActivity(activity domain.Activity) error
 	GetAllActivities() ([]domain.Activity, error)
-	GetAllActivitiesByUser(userID uuid.UUID) ([]domain.Activity, error)
+	GetActivitiesByUser(userID uuid.UUID) ([]domain.Activity, error)
+	GetActivityByID(activityID uuid.UUID) (domain.Activity, error)
+	UpdateActivity(activity domain.Activity) error
+	DeleteActivity(activityID uuid.UUID) error
 }
 
 type PostgresActivityRepository struct {
@@ -47,7 +50,7 @@ func (r *PostgresActivityRepository) GetAllActivities() ([]domain.Activity, erro
 		`SELECT id, user_id, start, duration, distance, laps, pool_size, location_type, notes FROM activities`,
 	)
 	if err != nil {
-		return nil, err
+		return []domain.Activity{}, err
 	}
 	defer rows.Close()
 
@@ -69,7 +72,7 @@ func (r *PostgresActivityRepository) GetAllActivities() ([]domain.Activity, erro
 			&a.Notes,
 		)
 		if err != nil {
-			return nil, err
+			return []domain.Activity{}, err
 		}
 
 		a.Duration = domain.DurationString((time.Duration(durationSeconds) * time.Second).String())
@@ -81,7 +84,7 @@ func (r *PostgresActivityRepository) GetAllActivities() ([]domain.Activity, erro
 	return activities, nil
 }
 
-func (r *PostgresActivityRepository) GetAllActivitiesByUser(userID uuid.UUID) ([]domain.Activity, error) {
+func (r *PostgresActivityRepository) GetActivitiesByUser(userID uuid.UUID) ([]domain.Activity, error) {
 	rows, err := r.db.Query(
 		`SELECT id, user_id, start, duration, distance, laps, pool_size, location_type, notes
          FROM activities
@@ -89,7 +92,7 @@ func (r *PostgresActivityRepository) GetAllActivitiesByUser(userID uuid.UUID) ([
 		userID,
 	)
 	if err != nil {
-		return nil, err
+		return []domain.Activity{}, err
 	}
 	defer rows.Close()
 
@@ -111,7 +114,7 @@ func (r *PostgresActivityRepository) GetAllActivitiesByUser(userID uuid.UUID) ([
 			&a.Notes,
 		)
 		if err != nil {
-			return nil, err
+			return []domain.Activity{}, err
 		}
 
 		a.Duration = domain.DurationString((time.Duration(durationSeconds) * time.Second).String())
@@ -121,4 +124,69 @@ func (r *PostgresActivityRepository) GetAllActivitiesByUser(userID uuid.UUID) ([
 	}
 
 	return activities, nil
+}
+
+func (r *PostgresActivityRepository) GetActivityByID(activityID uuid.UUID) (domain.Activity, error) {
+	var a domain.Activity
+	var durationSeconds int64
+	var locationType string
+
+	err := r.db.QueryRow(
+		`SELECT id, user_id, start, duration, distance, laps, pool_size, location_type, notes
+		 FROM activities
+		 WHERE id = $1`,
+		activityID,
+	).Scan(
+		&a.ID,
+		&a.UserID,
+		&a.Start,
+		&durationSeconds,
+		&a.Distance,
+		&a.Laps,
+		&a.PoolSize,
+		&locationType,
+		&a.Notes,
+	)
+
+	if err != nil {
+		return a, err
+	}
+
+	a.Duration = domain.DurationString((time.Duration(durationSeconds) * time.Second).String())
+	a.LocationType = domain.LocationType(locationType)
+
+	return a, nil
+}
+
+func (r *PostgresActivityRepository) UpdateActivity(activity domain.Activity) error {
+	_, err := r.db.Exec(
+		`UPDATE activities SET
+			user_id = $2,
+			start = $3,
+			duration = $4,
+			distance = $5,
+			laps = $6,
+			pool_size = $7,
+			location_type = $8,
+			notes = $9
+		WHERE id = $1`,
+		activity.ID,
+		activity.UserID,
+		activity.Start,
+		int64(activity.Duration.Seconds()),
+		activity.Distance,
+		activity.Laps,
+		activity.PoolSize,
+		string(activity.LocationType),
+		activity.Notes,
+	)
+	return err
+}
+
+func (r *PostgresActivityRepository) DeleteActivity(activityID uuid.UUID) error {
+	_, err := r.db.Exec(
+		`DELETE FROM activities WHERE id = $1`,
+		activityID,
+	)
+	return err
 }

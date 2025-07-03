@@ -31,6 +31,10 @@ func SetupRouter() *gin.Engine {
 	intervalService := app.NewIntervalService(intervalRepo)
 	intervalHandler := handler.NewIntervalHandler(intervalService)
 
+	activityRepo := repository.NewActivityRepository(db)
+	activityService := app.NewActivityService(activityRepo, intervalRepo)
+	activityHandler := handler.NewActivityHandler(activityService)
+
 	router := gin.Default()
 	router.Use(cors.Default())
 
@@ -44,6 +48,11 @@ func SetupRouter() *gin.Engine {
 	router.GET("/users/:id", userHandler.GetUserByID)
 	router.PUT("/users/:id", userHandler.UpdateUser)
 	router.DELETE("/users/:id", userHandler.DeleteUser)
+
+	// Activity routes
+	router.POST("/activities", activityHandler.CreateActivity)
+	router.GET("/activities", activityHandler.GetAllActivities)
+	router.GET("/users/:id/activities", activityHandler.GetActivitiesByUser)
 
 	// Interval routes
 	router.POST("/intervals", intervalHandler.CreateInterval)

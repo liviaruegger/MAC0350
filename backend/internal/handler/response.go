@@ -1,5 +1,7 @@
 package handler
 
+import "github.com/liviaruegger/MAC0350/backend/internal/entity"
+
 // ErrorResponse represents an error message returned by the API.
 // swagger:model
 type ErrorResponse struct {
@@ -14,4 +16,10 @@ type MessageResponse struct {
 	// Message is a human-readable message.
 	// Example: User created successfully
 	Message string `json:"message"`
+}
+
+// GetActivitiesByUserResponse includes the list of all activities logged by the user
+// swagger:model
+type GetActivitiesByUserResponse struct {
+	Activities []entity.Activity `json:"activities"`
 }

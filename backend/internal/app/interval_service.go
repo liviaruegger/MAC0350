@@ -20,5 +20,5 @@ func NewIntervalService(r repository.IntervalRepository) *intervalService {
 }
 
 func (s *intervalService) CreateInterval(interval domain.Interval) error {
-	return s.repo.Create(interval)
+	return s.repo.CreateInterval(interval)
 }
