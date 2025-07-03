@@ -13,15 +13,16 @@ const Perfil: React.FC = () => {
 		weight: 75.5,
 		goals: 'weight_loss'
 	});
+	const [totalActivities, setTotalActivities] = useState<number | null>(null);
+	const [totalDistance, setTotalDistance] = useState<number | null>(null);
 
 	useEffect(() => {
 		// IMPORTANT: change id from hardcoded to fetched (auth)
-		const userId = "ae7c0d89-b42b-478e-903b-33c56ccff735";
+		const userId = "59f4e428-9d42-4af8-a18d-1e1dabef47e0";
 
 		fetch(`http://localhost:8080/users/${userId}`)
 		.then(response => response.json())
 		.then(data => {
-			// Currently only name and email
 			setFormData(prevData => ({
 			...prevData, // Keep the other fields like age, height, etc.
 			name: data.name,
@@ -33,11 +34,28 @@ const Perfil: React.FC = () => {
 		.catch(error => {
 			console.error("Error fetching user data:", error);
 		});
+
+		// Fetch total activities and distance
+		fetch(`http://localhost:8080/users/${userId}/activities`)
+			.then(response => response.json())
+			.then(data => {
+				if (Array.isArray(data.activities)) {
+					setTotalActivities(data.activities.length);
+					const sumDistance = data.activities.reduce((sum: number, act: { distance?: number }) => sum + (act.distance || 0), 0);
+					setTotalDistance(sumDistance);
+				} else {
+					setTotalActivities(0);
+					setTotalDistance(0);
+				}
+			})
+			.catch(error => {
+				console.error("Error fetching activities count:", error);
+			});
 	}, []);
 
 	const stats = [
-		{ label: 'Atividades totais', value: '56', icon: Target, color: 'cyan' },
-		{ label: 'Distância total percorrida', value: '213,7 km', icon: TrendingUp, color: 'orange' },
+		{ label: 'Atividades totais', value: totalActivities !== null ? totalActivities : '...', icon: Target, color: 'cyan' },
+		{ label: 'Distância total percorrida', value: totalDistance !== null ? `${(totalDistance / 1000).toFixed(1)} km` : '...', icon: TrendingUp, color: 'orange' },
 		{ label: 'Conquistas', value: '23', icon: Award, color: 'blue' },
 		{ label: 'Sequência atual', value: '15 dias', icon: Target, color: 'purple' }
 	];
@@ -51,7 +69,7 @@ const Perfil: React.FC = () => {
 	];
 
 	const handleSave = () => {
-		const userId = "9cdba1c6-9a50-464f-a892-3efd75090243";
+		const userId = "59f4e428-9d42-4af8-a18d-1e1dabef47e0";
 
 		const userToUpdate = {
 			name: formData.name,
