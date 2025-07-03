@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/gin-contrib/cors"
 	"github.com/liviaruegger/MAC0350/backend/config"
 	"github.com/liviaruegger/MAC0350/backend/internal/app"
 	"github.com/liviaruegger/MAC0350/backend/internal/handler"
@@ -35,6 +36,7 @@ func SetupRouter() *gin.Engine {
 	activityHandler := handler.NewActivityHandler(activityService)
 
 	router := gin.Default()
+	router.Use(cors.Default())
 
 	// Swagger route
 	router.GET("/swagger/*any", ginswagger.WrapHandler(swaggerfiles.Handler))
