@@ -1,22 +1,22 @@
-# Swim Tracker (nome provisório)
+# Swim Tracker
 
 #### Autores
 - Ana Lívia Rüegger Saldanha (NUSP: 8686691)
 - Gustavo Mota Bastos (NUSP: 10284389)
 
 ## Descrição geral
-A proposta é desenvolver um sistema para registro de treinos de natação, com feed de atividades e possibilidade de compartilhamento (como o Strava, mas permitindo a inserção manual das informações, sem necessidade de um dispositivo externo).
+O Swim Tracker é um sistema para registro de treinos de natação, com feed de atividades e possibilidade de compartilhamento (como o Strava, mas permitindo a inserção manual das informações, sem necessidade de um dispositivo externo).
 
 ## Escopo
-As funcionalidades incluídas, a princípio, serão:
+As funcionalidades incluídas são:
 - Cadastro do usuário com informações pessoais básicas;
 - Registro de atividades: cada atividade registrada poderá incluir título, data, local, distâncias (possibilitando discriminar por estilos), horário, duração total, esforço percebido e comentários;
-- Perfil com feed para compartilhamento de atividades;
+- Atividades podem ser divididas em intervalos, cada um com seu próprio detalhamento;
+- Perfil com informações pessoais e histórico de atividades;
 - Geração de resumo com estatísticas por período (semanal, mensal).
 
 ## Organização do projeto
-```
-MAC0350/
+```MAC0350/
 ├── .env
 ├── .gitignore
 ├── backend/
@@ -26,6 +26,8 @@ MAC0350/
 │   │   └── database.go
 │   ├── internal/
 │   │   ├── app/
+│   │   │   ├── activity_service_test.go
+│   │   │   ├── activity_service.go
 │   │   │   ├── interval_service_test.go
 │   │   │   ├── interval_service.go
 │   │   │   ├── user_service_test.go
@@ -38,12 +40,23 @@ MAC0350/
 │   │   │   ├── interval_test.go
 │   │   │   ├── interval.go
 │   │   │   └── user.go
+│   │   ├── entity/
+│   │   │   ├── activity.go
+│   │   │   └── interval.go
 │   │   ├── handler/
+│   │   │   ├── activity_handler_test.go
+│   │   │   ├── activity_handler.go
+│   │   │   ├── input.go
 │   │   │   ├── interval_handler_test.go
 │   │   │   ├── interval_handler.go
 │   │   │   ├── response.go
 │   │   │   ├── user_handler_test.go
 │   │   │   └── user_handler.go
+│   │   ├── mapper/
+│   │   │   ├── activity_test.go
+│   │   │   ├── activity.go
+│   │   │   ├── interval_test.go
+│   │   │   └── interval.go
 │   │   └── repository/
 │   │       ├── activity_repository_test.go
 │   │       ├── activity_repository.go
@@ -60,6 +73,29 @@ MAC0350/
 │   ├── docs.go
 │   ├── swagger.json
 │   └── swagger.yaml
+├── frontend/
+│   ├── Dockerfile
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── postcss.config.js
+│   ├── public/
+│   │   └── favicon.svg
+│   ├── src/
+│   │   ├── App.tsx
+│   │   ├── components/
+│   │   │   ├── AtividadeLog.tsx
+│   │   │   ├── Dashboard.tsx
+│   │   │   ├── Historico.tsx
+│   │   │   ├── Perfil.tsx
+│   │   │   └── StatCard.tsx
+│   │   ├── index.css
+│   │   └── main.tsx
+│   ├── tailwind.config.js
+│   ├── tsconfig.app.json
+│   ├── tsconfig.json
+│   ├── tsconfig.node.json
+│   └── vite.config.ts
 ├── go.mod
 ├── go.sum
 ├── LICENSE
@@ -135,6 +171,9 @@ Para atualizar as dependências Go (`go.mod` e `go.sum`):
 ```
 go mod tidy
 ```
+
+## Uso de IA Generativa
+Para desenvolvimento deste trabalho, contamos com auxílio do ChatGPT e do GitHub Copilot (usando o GPT-4.1), visto que estas são práticas amplamente utilizadas no mercado de desenvolvimento de sistemas atualmente. O uso de IA, quando ocorreu, foi detalhado na descrição dos commits e dos pull requests.
 
 ---
 Este projeto está sendo desenvolvido para a disciplina MAC0350 - Introdução ao Desenvolvimento de Sistemas de Software (2025.1) do IME-USP.
