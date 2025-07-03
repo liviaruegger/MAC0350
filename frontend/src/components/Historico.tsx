@@ -46,7 +46,7 @@ const Historico: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
 
     // Replace with actual user_id logic
-    const userId = '9cdba1c6-9a50-464f-a892-3efd75090243';
+    const userId = 'ae7c0d89-b42b-478e-903b-33c56ccff735';
 
     useEffect(() => {
         const fetchActivities = async () => {

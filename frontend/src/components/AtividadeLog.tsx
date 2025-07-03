@@ -134,21 +134,57 @@ const AtividadeLog: React.FC = () => {
         setIsSubmitting(true);
         setSubmitMessage(null);
 
-        try {
-            // Simulate API call delay
-            await new Promise(resolve => setTimeout(resolve, 1000));
+        const userId = 'ae7c0d89-b42b-478e-903b-33c56ccff735'; // Use your actual user id
 
+        try {
             // Calculate final distance if not manually entered
             const finalActivity = {
                 ...activity,
                 distance: activity.distance || calculateTotalDistance()
             };
 
-            // Simulate successful save (in real app, this would be an API call)
-            console.log('Saving activity:', finalActivity);
-            
+            // Map to API format (without intervals)
+            const apiActivity = {
+                user_id: userId,
+                duration: finalActivity.duration + 'm',
+                distance: finalActivity.distance,
+                laps: 50, // Not tracked in UI
+                pool_size: finalActivity.poolLength,
+                location_type: 'pool',
+                notes: finalActivity.notes,
+                // start: finalActivity.date, // You may want to add time if available
+            };
+
+            // 1. Create activity
+            const response = await fetch(`http://localhost:8080/activities`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(apiActivity)
+            });
+            if (!response.ok) throw new Error('Erro ao salvar atividade');
+            const createdActivity = await response.json();
+            const activityId = createdActivity.id;
+            if (!activityId) throw new Error('ID da atividade não retornado');
+
+            // 2. Create intervals (if any)
+            for (const interval of finalActivity.intervals) {
+                const apiInterval = {
+                    activity_id: activityId,
+                    distance: interval.distance,
+                    duration: interval.time + 'm', // Assuming 'time' is the duration string
+                    notes: interval.notes,
+                    stroke: interval.stroke,
+                    type: interval.type
+                };
+                const intervalResp = await fetch(`http://localhost:8080/intervals`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(apiInterval)
+                });
+                if (!intervalResp.ok) throw new Error('Erro ao salvar intervalo');
+            }
+
             setSubmitMessage('Atividade salva com sucesso!');
-            
             // Reset form after successful submission
             setTimeout(() => {
                 setActivity({
@@ -165,7 +201,6 @@ const AtividadeLog: React.FC = () => {
                 });
                 setSubmitMessage(null);
             }, 2000);
-
         } catch (error) {
             console.error('Error saving activity:', error);
             setSubmitMessage('Failed to save activity');

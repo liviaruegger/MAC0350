@@ -16,7 +16,7 @@ const Perfil: React.FC = () => {
 
 	useEffect(() => {
 		// IMPORTANT: change id from hardcoded to fetched (auth)
-		const userId = "9cdba1c6-9a50-464f-a892-3efd75090243";
+		const userId = "ae7c0d89-b42b-478e-903b-33c56ccff735";
 
 		fetch(`http://localhost:8080/users/${userId}`)
 		.then(response => response.json())
