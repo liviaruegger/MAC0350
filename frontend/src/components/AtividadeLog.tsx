@@ -233,7 +233,7 @@ const AtividadeLog: React.FC = () => {
                 <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
                     <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center space-x-2">
                         <Calendar className="h-5 w-5 text-blue-500" />
-                        <span>Basic Information</span>
+                        <span>Informações Básicas</span>
                     </h3>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
