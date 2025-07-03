@@ -6,30 +6,22 @@ interface Interval {
     type: string;
     stroke: string;
     time: string;
-    rest: number;
     notes?: string;
 }
 
 interface Activity {
     date: string;
-    pool: string;
-    poolLength: number;
+    locationName: string;
+    locationType: string;
+    poolSize: number;
     duration: number; // in minutes
     distance: number; // in meters
-    strokes: {
-        freestyle?: number;
-        backstroke?: number;
-        breaststroke?: number;
-        butterfly?: number;
-    };
     intervals: Interval[];
     waterTemp?: number;
     notes: string;
-    feeling: 'excelente' | 'bem' | 'regular' | 'cansado' | 'mal';
-    heartRate?: {
-        avg: number;
-        max: number;
-    };
+    feeling: 'excellent' | 'good' | 'regular' | 'tired' | 'bad';
+    heartRateAvg?: number;
+    heartRateMax?: number;
 }
 
 const AtividadeLog: React.FC = () => {
@@ -38,15 +30,16 @@ const AtividadeLog: React.FC = () => {
     
     const [activity, setActivity] = useState<Activity>({
         date: new Date().toISOString().split('T')[0],
-        pool: '',
-        poolLength: 25,
+        locationName: '',
+        locationType: '',
+        poolSize: 25,
         duration: 0,
         distance: 0,
-        strokes: {},
         intervals: [],
         notes: '',
-        feeling: 'bem',
-        heartRate: { avg: 0, max: 0 }
+        feeling: 'good',
+        heartRateAvg: 80,
+        heartRateMax: 140,
     });
 
     const [currentInterval, setCurrentInterval] = useState({
@@ -54,7 +47,6 @@ const AtividadeLog: React.FC = () => {
         type: 'swim',
         stroke: 'freestyle',
         time: '',
-        rest: 0,
         notes: ''
     });
 
@@ -75,16 +67,15 @@ const AtividadeLog: React.FC = () => {
         { value: 'breaststroke', label: 'Breaststroke' },
         { value: 'butterfly', label: 'Butterfly' },
         { value: 'medley', label: 'Individual Medley' },
-        { value: 'kick', label: 'Kick Only' },
-        { value: 'drill', label: 'Drill' }
+        { value: 'unknown', label: 'Unknown' },
     ];
 
     const feelingOptions = [
-        { value: 'excelente', label: 'Excelente', color: 'text-green-600', bg: 'bg-green-100' },
-        { value: 'bem', label: 'Bem', color: 'text-blue-600', bg: 'bg-blue-100' },
+        { value: 'excellent', label: 'Excelente', color: 'text-green-600', bg: 'bg-green-100' },
+        { value: 'good', label: 'Bem', color: 'text-blue-600', bg: 'bg-blue-100' },
         { value: 'regular', label: 'Regular', color: 'text-yellow-600', bg: 'bg-yellow-100' },
-        { value: 'cansado', label: 'Cansado', color: 'text-orange-600', bg: 'bg-orange-100' },
-        { value: 'mal', label: 'Mal', color: 'text-red-600', bg: 'bg-red-100' }
+        { value: 'tired', label: 'Cansado', color: 'text-orange-600', bg: 'bg-orange-100' },
+        { value: 'bad', label: 'Mal', color: 'text-red-600', bg: 'bg-red-100' }
     ];
 
     const addInterval = () => {
@@ -102,7 +93,6 @@ const AtividadeLog: React.FC = () => {
                 type: 'swim',
                 stroke: 'freestyle',
                 time: '',
-                rest: 0,
                 notes: ''
             });
         }
@@ -134,7 +124,7 @@ const AtividadeLog: React.FC = () => {
         setIsSubmitting(true);
         setSubmitMessage(null);
 
-        const userId = 'ae7c0d89-b42b-478e-903b-33c56ccff735'; // Use your actual user id
+        const userId = '59f4e428-9d42-4af8-a18d-1e1dabef47e0'; // Use your actual user id
 
         try {
             // Calculate final distance if not manually entered
@@ -143,16 +133,20 @@ const AtividadeLog: React.FC = () => {
                 distance: activity.distance || calculateTotalDistance()
             };
 
-            // Map to API format (without intervals)
+            // Build API payload (original version, with laps and all fields)
             const apiActivity = {
                 user_id: userId,
-                duration: finalActivity.duration + 'm',
+                date: finalActivity.date,
                 distance: finalActivity.distance,
-                laps: 50, // Not tracked in UI
-                pool_size: finalActivity.poolLength,
-                location_type: 'pool',
+                duration: finalActivity.duration + 'm',
+                feeling: finalActivity.feeling,
+                heart_rate_avg: finalActivity.heartRateAvg,
+                heart_rate_max: finalActivity.heartRateMax,
+                laps: 10,
+                location_name: finalActivity.locationName,
+                location_type: finalActivity.locationType,
                 notes: finalActivity.notes,
-                // start: finalActivity.date, // You may want to add time if available
+                pool_size: finalActivity.poolSize,
             };
 
             // 1. Create activity
@@ -168,14 +162,19 @@ const AtividadeLog: React.FC = () => {
 
             // 2. Create intervals (if any)
             for (const interval of finalActivity.intervals) {
-                const apiInterval = {
+                // Only send valid fields
+                const apiInterval: any = {
                     activity_id: activityId,
                     distance: interval.distance,
-                    duration: interval.time + 'm', // Assuming 'time' is the duration string
-                    notes: interval.notes,
                     stroke: interval.stroke,
                     type: interval.type
                 };
+                if (interval.time) {
+                    apiInterval.duration = interval.time + 'm'; // If time is a string like '1:30', backend may expect a different format
+                }
+                if (interval.notes) {
+                    apiInterval.notes = interval.notes;
+                }
                 const intervalResp = await fetch(`http://localhost:8080/intervals`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -189,15 +188,16 @@ const AtividadeLog: React.FC = () => {
             setTimeout(() => {
                 setActivity({
                     date: new Date().toISOString().split('T')[0],
-                    pool: '',
-                    poolLength: 25,
+                    locationName: '',
+                    locationType: '',
+                    poolSize: 25,
                     duration: 0,
                     distance: 0,
-                    strokes: {},
                     intervals: [],
                     notes: '',
-                    feeling: 'bem',
-                    heartRate: { avg: 0, max: 0 }
+                    feeling: 'good',
+                    heartRateAvg: 80,
+                    heartRateMax: 140,
                 });
                 setSubmitMessage(null);
             }, 2000);
@@ -236,7 +236,7 @@ const AtividadeLog: React.FC = () => {
                         <span>Basic Information</span>
                     </h3>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-2">Data</label>
                             <input
@@ -249,11 +249,11 @@ const AtividadeLog: React.FC = () => {
                         </div>
                         
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">Piscina/Local</label>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">Local</label>
                             <input
                                 type="text"
-                                value={activity.pool}
-                                onChange={(e) => setActivity(prev => ({ ...prev, pool: e.target.value }))}
+                                value={activity.locationName}
+                                onChange={(e) => setActivity(prev => ({ ...prev, locationName: e.target.value }))}
                                 placeholder="ex.: CEPE-USP"
                                 className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 required
@@ -263,13 +263,26 @@ const AtividadeLog: React.FC = () => {
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-2">Comprimento (m)</label>
                             <select
-                                value={activity.poolLength}
-                                onChange={(e) => setActivity(prev => ({ ...prev, poolLength: parseInt(e.target.value) }))}
+                                value={activity.poolSize}
+                                onChange={(e) => setActivity(prev => ({ ...prev, poolSize: parseInt(e.target.value) }))}
                                 className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                disabled={activity.locationType === 'open_water'}
                             >
                                 <option value={25}>25m</option>
                                 <option value={50}>50m</option>
                                 <option value={33}>33.3m (jardas)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">Tipo</label>
+                            <select
+                                value={activity.locationType || 'pool'}
+                                onChange={(e) => setActivity(prev => ({ ...prev, locationType: e.target.value }))}
+                                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                                <option value={'pool'}>Piscina</option>
+                                <option value={'open_water'}>Águas Abertas</option>
                             </select>
                         </div>
                     </div>
@@ -337,10 +350,10 @@ const AtividadeLog: React.FC = () => {
                             <label className="block text-sm font-medium text-slate-700 mb-2">Frequência Cardíaca Média</label>
                             <input
                                 type="number"
-                                value={activity.heartRate?.avg || ''}
+                                value={activity.heartRateAvg || ''}
                                 onChange={(e) => setActivity(prev => ({ 
                                     ...prev, 
-                                    heartRate: { ...prev.heartRate!, avg: parseInt(e.target.value) || 0 }
+                                    heartRateAvg: parseInt(e.target.value) || 0
                                 }))}
                                 placeholder="140"
                                 className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -351,10 +364,10 @@ const AtividadeLog: React.FC = () => {
                             <label className="block text-sm font-medium text-slate-700 mb-2">Frequência Cardíaca Máxima</label>
                             <input
                                 type="number"
-                                value={activity.heartRate?.max || ''}
+                                value={activity.heartRateMax || ''}
                                 onChange={(e) => setActivity(prev => ({ 
                                     ...prev, 
-                                    heartRate: { ...prev.heartRate!, max: parseInt(e.target.value) || 0 }
+                                    heartRateMax: parseInt(e.target.value) || 0
                                 }))}
                                 placeholder="165"
                                 className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -370,7 +383,7 @@ const AtividadeLog: React.FC = () => {
                     {/* Add Set Form */}
                     <div className="bg-slate-50 rounded-xl p-4 mb-4">
                         <h4 className="font-medium text-slate-900 mb-3">Adicionar Intervalo</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
 
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-1">Distância (m)</label>
@@ -387,23 +400,10 @@ const AtividadeLog: React.FC = () => {
                                 <label className="block text-sm font-medium text-slate-700 mb-1">Tipo</label>
                                 <select
                                     value={currentInterval.type}
-                                    onChange={(e) => setCurrentInterval(prev => ({ ...prev, stroke: e.target.value }))}
+                                    onChange={(e) => setCurrentInterval(prev => ({ ...prev, type: e.target.value }))}
                                     className="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 >
                                     {typeOptions.map(option => (
-                                        <option key={option.value} value={option.value}>{option.label}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Estilo</label>
-                                <select
-                                    value={currentInterval.stroke}
-                                    onChange={(e) => setCurrentInterval(prev => ({ ...prev, stroke: e.target.value }))}
-                                    className="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                >
-                                    {strokeOptions.map(option => (
                                         <option key={option.value} value={option.value}>{option.label}</option>
                                     ))}
                                 </select>
@@ -419,17 +419,20 @@ const AtividadeLog: React.FC = () => {
                                     className="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 />
                             </div>
-
+                            
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Descanso (segundos)</label>
-                                <input
-                                    type="number"
-                                    value={currentInterval.rest || ''}
-                                    onChange={(e) => setCurrentInterval(prev => ({ ...prev, rest: parseInt(e.target.value) || 0 }))}
-                                    placeholder="30"
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Estilo</label>
+                                <select
+                                    value={currentInterval.stroke}
+                                    onChange={(e) => setCurrentInterval(prev => ({ ...prev, stroke: e.target.value }))}
                                     className="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                />
+                                >
+                                    {strokeOptions.map(option => (
+                                        <option key={option.value} value={option.value}>{option.label}</option>
+                                    ))}
+                                </select>
                             </div>
+
                         </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
@@ -467,7 +470,6 @@ const AtividadeLog: React.FC = () => {
                                             <span className="font-medium text-blue-900">{interval.distance}m</span>
                                             <span className="text-slate-600 capitalize">{interval.stroke}</span>
                                             <span className="text-slate-600">{interval.time}</span>
-                                            {interval.rest > 0 && <span className="text-slate-500">Descanso: {interval.rest}s</span>}
                                         </div>
                                         <button
                                             type="button"
