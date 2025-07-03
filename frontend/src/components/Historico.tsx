@@ -7,33 +7,23 @@ interface Interval {
     type: string;
     stroke: string;
     time: string;
-    rest: number;
     notes?: string;
 }
 
 interface Activity {
     id: string,
     date: string;
-    pool: string;
-    poolLength: number;
+    locationName: string;
+    locationType: string;
+    poolSize: number;
     duration: number; // in minutes
     distance: number; // in meters
-    strokes: {
-        freestyle?: number;
-        backstroke?: number;
-        breaststroke?: number;
-        butterfly?: number;
-        kick?: number;
-        medley?: number;
-    };
     intervals: Interval[];
     waterTemp?: number;
     notes: string;
-    feeling: 'excelente' | 'bem' | 'regular' | 'cansado' | 'mal';
-    heartRate?: {
-        avg: number;
-        max: number;
-    };
+    feeling: 'excellent' | 'good' | 'regular' | 'tired' | 'bad';
+    heartRateAvg?: number;
+    heartRateMax?: number;
 }
 
 const Historico: React.FC = () => {
@@ -46,7 +36,7 @@ const Historico: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
 
     // Replace with actual user_id logic
-    const userId = 'ae7c0d89-b42b-478e-903b-33c56ccff735';
+    const userId = '59f4e428-9d42-4af8-a18d-1e1dabef47e0';
 
     useEffect(() => {
         const fetchActivities = async () => {
@@ -58,26 +48,26 @@ const Historico: React.FC = () => {
                 const data = await response.json();
                 // Map API response to Activity[]
                 const mapped: Activity[] = (data.activities || []).map((a: any) => ({
-                    id: a.id, // Fine
-                    date: a.start ? a.start.split('T')[0] : '', // Align property name
-                    pool: a.location_type === 'pool' ? 'Piscina' : 'Aberto', // Decide if two properties or one
-                    poolLength: a.pool_size || 0, // Align property name
-                    duration: typeof a.duration === 'string' ? parseInt(a.duration) : a.duration, // Fine
-                    distance: a.distance, // Fine
-                    strokes: {}, // Undecided
-                    intervals: (a.intervals || []).map((i: any) => ({ // We won't store intervals inside Activity on db
+                    id: a.id,
+                    date: a.date,
+                    locationName: a.location_name,
+                    locationType: a.location_type,
+                    poolSize: a.pool_size || 0,
+                    duration: parseDurationToMinutes(a.duration),
+                    distance: a.distance,
+                    intervals: (a.intervals || []).map((i: any) => ({
                         id: i.id,
                         distance: i.distance,
                         type: i.type,
                         stroke: i.stroke,
                         time: i.duration || '',
-                        rest: 0, // Not present in API, set to 0 or map if available
                         notes: i.notes
                     })),
                     waterTemp: undefined, // Not present in API
-                    notes: a.notes || '', // Fine
-                    feeling: 'regular', // Not present in API, set default or map if available
-                    heartRate: undefined // Not present in API
+                    notes: a.notes || '',
+                    feeling: a.feeling || 'regular',
+                    heartRateAvg: a.heart_rate_avg,
+                    heartRateMax: a.heart_rate_max
                 }));
                 setAtividades(mapped);
             } catch (err: any) {
@@ -91,11 +81,11 @@ const Historico: React.FC = () => {
 
     const feelingOptions = [
         { value: 'all', label: 'Todas as Sensações' },
-        { value: 'excelente', label: 'Excelente', color: 'text-green-600', bg: 'bg-green-100' },
-        { value: 'bem', label: 'Bem', color: 'text-blue-600', bg: 'bg-blue-100' },
+        { value: 'excellent', label: 'Excelente', color: 'text-green-600', bg: 'bg-green-100' },
+        { value: 'good', label: 'Bem', color: 'text-blue-600', bg: 'bg-blue-100' },
         { value: 'regular', label: 'Regular', color: 'text-yellow-600', bg: 'bg-yellow-100' },
-        { value: 'cansado', label: 'Cansado', color: 'text-orange-600', bg: 'bg-orange-100' },
-        { value: 'mal', label: 'Mal', color: 'text-red-600', bg: 'bg-red-100' }
+        { value: 'tired', label: 'Cansado', color: 'text-orange-600', bg: 'bg-orange-100' },
+        { value: 'bad', label: 'Mal', color: 'text-red-600', bg: 'bg-red-100' }
     ];
 
     const sortOptions = [
@@ -118,9 +108,33 @@ const Historico: React.FC = () => {
         return `${minutes}:${seconds.toString().padStart(2, '0')}`;
     };
 
+    // Helper to format duration as 'Xh Ym' or 'Xm'
+    const formatDuration = (minutes: number) => {
+        if (minutes >= 60) {
+            const h = Math.floor(minutes / 60);
+            const m = minutes % 60;
+            return m > 0 ? `${h}h ${m}m` : `${h}h`;
+        }
+        return `${minutes} min`;
+    };
+
+    // Helper to parse duration strings like '1h 15m', '75m', '2h', '60m', etc.
+    function parseDurationToMinutes(duration: string | number): number {
+        if (typeof duration === 'number') return duration;
+        if (!duration) return 0;
+        let min = 0;
+        const hMatch = duration.match(/(\d+)h/);
+        const mMatch = duration.match(/(\d+)m/);
+        if (hMatch) min += parseInt(hMatch[1], 10) * 60;
+        if (mMatch) min += parseInt(mMatch[1], 10);
+        // If only a number (e.g. '75'), treat as minutes
+        if (!hMatch && !mMatch && /^\d+$/.test(duration)) min = parseInt(duration, 10);
+        return min;
+    }
+
     const filteredAndSortedWorkouts = atividades
         .filter(atividades => {
-            const matchesSearch = atividades.pool.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            const matchesSearch = atividades.locationName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                atividades.notes.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                atividades.intervals.some(interval => interval.notes?.toLowerCase().includes(searchTerm.toLowerCase()));
             const matchesFeeling = selectedFeeling === 'all' || atividades.feeling === selectedFeeling;
@@ -135,7 +149,7 @@ const Historico: React.FC = () => {
                 case 'duration':
                     return b.duration - a.duration;
                 case 'feeling':
-                    const feelingOrder = ['excelente', 'bem', 'regular', 'cansado', 'mal'];
+                    const feelingOrder = ['excellent', 'good', 'regular', 'tired', 'bad'];
                     return feelingOrder.indexOf(a.feeling) - feelingOrder.indexOf(b.feeling);
                 default:
                     return 0;
@@ -295,7 +309,7 @@ const Historico: React.FC = () => {
                                             <Waves className="h-6 w-6 text-white" />
                                         </div>
                                         <div>
-                                            <h3 className="text-lg font-semibold text-slate-900">{atividade.pool}</h3>
+                                            <h3 className="text-lg font-semibold text-slate-900">{atividade.locationName}</h3>
                                             <div className="flex items-center space-x-2 text-slate-500">
                                                 <Calendar className="h-4 w-4" />
                                                 <span>{new Date(atividade.date).toLocaleDateString()}</span>
@@ -314,12 +328,16 @@ const Historico: React.FC = () => {
                                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
                                     <div className="flex items-center space-x-2">
                                         <Clock className="h-4 w-4 text-slate-400" />
-                                        <span className="text-slate-600">{atividade.duration} min</span>
+                                        <span className="text-slate-600">{formatDuration(atividade.duration)}</span>
                                     </div>
                                     
                                     <div className="flex items-center space-x-2">
                                         <MapPin className="h-4 w-4 text-slate-400" />
-                                        <span className="text-slate-600">{atividade.poolLength}m (piscina)</span>
+                                        {atividade.locationType === 'pool' ? (
+                                            <span className="text-slate-600">Piscina ({atividade.poolSize}m)</span>
+                                        ) : (
+                                            <span className="text-slate-600">Águas Abertas</span>
+                                        )}
                                     </div>
                                     
                                     {atividade.waterTemp && (
@@ -329,46 +347,25 @@ const Historico: React.FC = () => {
                                         </div>
                                     )}
                                     
-                                    {atividade.heartRate?.avg && (
+                                    {atividade.heartRateAvg && (
                                         <div className="flex items-center space-x-2">
                                             <Heart className="h-4 w-4 text-slate-400" />
-                                            <span className="text-slate-600">{atividade.heartRate.avg} bpm médio</span>
+                                            <span className="text-slate-600">{atividade.heartRateAvg} bpm (média)</span>
                                         </div>
                                     )}
-                                    
+
+                                    {atividade.heartRateMax && (
+                                        <div className="flex items-center space-x-2">
+                                            <Heart className="h-4 w-4 text-slate-400" />
+                                            <span className="text-slate-600">{atividade.heartRateMax} bpm (máxima)</span>
+                                        </div>
+                                    )}
+
                                     <div className="flex items-center space-x-2">
                                         <span className="text-slate-600">{atividade.intervals.length} intervalos</span>
                                     </div>
                                 </div>
                                 
-                                {/* Sets Summary with Notes
-                                {atividade.intervals.length > 0 && (
-                                    <div className="bg-slate-50 rounded-xl p-4 mb-4">
-                                        <h4 className="font-medium text-slate-900 mb-3">Intervalos</h4>
-                                        <div className="space-y-2">
-                                            {atividade.intervals.slice(0, 4).map((interval, index) => (
-                                                <div key={index} className="bg-white p-3 rounded-lg border border-slate-200">
-                                                    <div className="flex justify-between items-center mb-1">
-                                                        <div className="text-sm text-slate-900 font-medium">
-                                                            {interval.distance}m {interval.stroke} - {interval.time}
-                                                            {interval.rest > 0 && <span className="text-slate-500 ml-2">({interval.rest}s de descanso)</span>}
-                                                        </div>
-                                                    </div>
-                                                    {interval.notes && (
-                                                        <div className="text-xs text-slate-600 bg-blue-50 p-2 rounded border border-blue-100">
-                                                            {interval.notes}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            ))}
-                                            {atividade.intervals.length > 4 && (
-                                                <div className="text-sm text-slate-500 text-center py-2">
-                                                    +{atividade.intervals.length - 4} atividades
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                )} */}
 
                                 {/* Intervals List */}
                                 {atividade.intervals.length > 0 && (
@@ -387,7 +384,6 @@ const Historico: React.FC = () => {
                                                                 <div className="flex justify-between items-center mb-1">
                                                                     <div className="text-sm text-slate-900 font-medium">
                                                                         {interval.distance}m {interval.stroke} - {interval.time}
-                                                                        {interval.rest > 0 && <span className="text-slate-500 ml-2">({interval.rest}s de descanso)</span>}
                                                                     </div>
                                                                 </div>
                                                                 {interval.notes && (
