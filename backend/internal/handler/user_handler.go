@@ -38,11 +38,14 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 	}
 
 	user := domain.User{
-		ID:    uuid.New(),
-		Name:  req.Name,
-		Email: req.Email,
-		City:  req.City,
-		Phone: req.Phone,
+		ID:     uuid.New(),
+		Name:   req.Name,
+		Email:  req.Email,
+		City:   req.City,
+		Phone:  req.Phone,
+		Age:    req.Age,
+		Height: req.Height,
+		Weight: req.Weight,
 	}
 
 	if err := h.service.CreateUser(user); err != nil {

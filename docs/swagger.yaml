@@ -132,16 +132,22 @@ definitions:
     - StrokeUnknown
   domain.User:
     properties:
+      age:
+        type: integer
       city:
         type: string
       email:
         type: string
+      height:
+        type: integer
       id:
         type: string
       name:
         type: string
       phone:
         type: string
+      weight:
+        type: number
     type: object
   entity.Activity:
     properties:
@@ -366,14 +372,20 @@ definitions:
     type: object
   handler.CreateUserRequest:
     properties:
+      age:
+        type: integer
       city:
         type: string
       email:
         type: string
+      height:
+        type: integer
       name:
         type: string
       phone:
         type: string
+      weight:
+        type: number
     required:
     - city
     - email
