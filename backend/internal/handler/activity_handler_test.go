@@ -34,15 +34,10 @@ func (m *MockActivityService) GetAllActivities() ([]domain.Activity, error) {
 
 func (m *MockActivityService) GetActivitiesByUser(userID uuid.UUID) ([]entity.Activity, error) {
 	args := m.Called(userID)
-
-	var activities []entity.Activity
 	if raw := args.Get(0); raw != nil {
-		activities = raw.([]entity.Activity)
-	} else {
-		activities = []entity.Activity{}
+		return raw.([]entity.Activity), args.Error(1)
 	}
-
-	return activities, args.Error(1)
+	return nil, args.Error(1)
 }
 
 func (m *MockActivityService) GetActivityByID(id uuid.UUID) (domain.Activity, error) {
@@ -73,18 +68,26 @@ func TestCreateActivityHandler(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		reqBody := CreateActivityRequest{
 			UserID:       uuid.New(),
+			Date:         "2023-10-01",
 			Duration:     domain.DurationString("30m"),
 			Distance:     1500,
 			Laps:         30,
 			PoolSize:     50,
 			LocationType: domain.LocationPool,
+			LocationName: "CEPE",
+			Feeling:      domain.FeelingTired,
+			HeartRateAvg: 120,
+			HeartRateMax: 140,
 			Notes:        "Morning swim",
 		}
 
 		body, _ := json.Marshal(reqBody)
 
 		mockService.On("CreateActivity", mock.MatchedBy(func(a domain.Activity) bool {
-			return a.UserID == reqBody.UserID && a.Distance == reqBody.Distance
+			return a.UserID == reqBody.UserID &&
+				a.Distance == reqBody.Distance &&
+				a.Feeling == reqBody.Feeling &&
+				a.LocationName == reqBody.LocationName
 		})).Return(nil)
 
 		req, _ := http.NewRequest(http.MethodPost, "/activities", bytes.NewBuffer(body))
@@ -110,16 +113,20 @@ func TestCreateActivityHandler(t *testing.T) {
 	t.Run("service error", func(t *testing.T) {
 		reqBody := CreateActivityRequest{
 			UserID:       uuid.New(),
+			Date:         "2023-10-02",
 			Duration:     domain.DurationString("1h"),
 			Distance:     2000,
 			Laps:         40,
-			PoolSize:     50,
+			PoolSize:     25,
 			LocationType: domain.LocationOpenWater,
-			Notes:        "",
+			LocationName: "Praia Vermelha",
+			Feeling:      domain.FeelingGood,
+			HeartRateAvg: 110,
+			HeartRateMax: 135,
+			Notes:        "Sunset swim",
 		}
 
 		body, _ := json.Marshal(reqBody)
-
 		mockService.On("CreateActivity", mock.Anything).Return(errors.New("internal error"))
 
 		req, _ := http.NewRequest(http.MethodPost, "/activities", bytes.NewBuffer(body))
@@ -127,7 +134,6 @@ func TestCreateActivityHandler(t *testing.T) {
 		resp := httptest.NewRecorder()
 
 		router.ServeHTTP(resp, req)
-
 		assert.Equal(t, http.StatusInternalServerError, resp.Code)
 	})
 }
@@ -142,8 +148,15 @@ func TestGetActivitiesByUserHandler(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		userID := uuid.New()
+		activityID := uuid.New()
 		mockService.On("GetActivitiesByUser", userID).Return([]entity.Activity{
-			{ID: uuid.New(), Distance: 1500},
+			{
+				ID:           activityID,
+				Distance:     1500,
+				Date:         "2023-10-01",
+				LocationName: "CEPE",
+				Feeling:      "good",
+			},
 		}, nil)
 
 		req, _ := http.NewRequest(http.MethodGet, "/users/"+userID.String()+"/activities", nil)
@@ -152,7 +165,9 @@ func TestGetActivitiesByUserHandler(t *testing.T) {
 		router.ServeHTTP(resp, req)
 
 		assert.Equal(t, http.StatusOK, resp.Code)
-		assert.Contains(t, resp.Body.String(), "1500") // Check that the response contains the expected activity
+		assert.Contains(t, resp.Body.String(), "1500")
+		assert.Contains(t, resp.Body.String(), "CEPE")
+		assert.Contains(t, resp.Body.String(), "good")
 		mockService.AssertExpectations(t)
 	})
 
@@ -161,7 +176,6 @@ func TestGetActivitiesByUserHandler(t *testing.T) {
 		resp := httptest.NewRecorder()
 
 		router.ServeHTTP(resp, req)
-
 		assert.Equal(t, http.StatusBadRequest, resp.Code)
 	})
 
@@ -173,7 +187,6 @@ func TestGetActivitiesByUserHandler(t *testing.T) {
 		resp := httptest.NewRecorder()
 
 		router.ServeHTTP(resp, req)
-
 		assert.Equal(t, http.StatusNotFound, resp.Code)
 	})
 
@@ -185,7 +198,6 @@ func TestGetActivitiesByUserHandler(t *testing.T) {
 		resp := httptest.NewRecorder()
 
 		router.ServeHTTP(resp, req)
-
 		assert.Equal(t, http.StatusInternalServerError, resp.Code)
 	})
 }

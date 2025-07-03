@@ -458,6 +458,10 @@ const docTemplate = `{
         "domain.Activity": {
             "type": "object",
             "properties": {
+                "date": {
+                    "description": "Date in ISO 8601 format, e.g., \"2023-10-01\"",
+                    "type": "string"
+                },
                 "distance": {
                     "description": "Total distance in meters",
                     "type": "number"
@@ -466,6 +470,22 @@ const docTemplate = `{
                     "description": "Duration of the activity in string format, e.g., \"1h30m\"",
                     "type": "string"
                 },
+                "feeling": {
+                    "description": "Optional feeling after the swim, e.g., \"tired\"",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.FeelingType"
+                        }
+                    ]
+                },
+                "heart_rate_avg": {
+                    "description": "Average heart rate during the activity",
+                    "type": "integer"
+                },
+                "heart_rate_max": {
+                    "description": "Maximum heart rate during the activity",
+                    "type": "integer"
+                },
                 "id": {
                     "description": "ID is the unique identifier for the activity (PK)",
                     "type": "string"
@@ -473,6 +493,10 @@ const docTemplate = `{
                 "laps": {
                     "description": "Number of pool laps",
                     "type": "integer"
+                },
+                "location_name": {
+                    "description": "Optional name for the location, e.g., \"CEPE\"",
+                    "type": "string"
                 },
                 "location_type": {
                     "description": "\"pool\" or \"open_water\"",
@@ -499,6 +523,23 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "domain.FeelingType": {
+            "type": "string",
+            "enum": [
+                "excellent",
+                "good",
+                "regular",
+                "tired",
+                "bad"
+            ],
+            "x-enum-varnames": [
+                "FeelingExcellent",
+                "FeelingGood",
+                "FeelingRegular",
+                "FeelingTired",
+                "FeelingBad"
+            ]
         },
         "domain.Interval": {
             "type": "object",
@@ -616,6 +657,14 @@ const docTemplate = `{
         "entity.Activity": {
             "type": "object",
             "properties": {
+                "avg_pace_per_100m": {
+                    "description": "Average pace in seconds per 100 meters, formatted mm:ss",
+                    "type": "string"
+                },
+                "date": {
+                    "description": "Date in ISO 8601 format, e.g., \"2023-10-01\"",
+                    "type": "string"
+                },
                 "distance": {
                     "description": "Total distance in meters",
                     "type": "number"
@@ -623,6 +672,22 @@ const docTemplate = `{
                 "duration": {
                     "description": "Duration of the activity in string format, e.g., \"1h30m\"",
                     "type": "string"
+                },
+                "feeling": {
+                    "description": "Optional feeling after the swim, e.g., \"tired\"",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/entity.FeelingType"
+                        }
+                    ]
+                },
+                "heart_rate_avg": {
+                    "description": "Average heart rate during the activity",
+                    "type": "integer"
+                },
+                "heart_rate_max": {
+                    "description": "Maximum heart rate during the activity",
+                    "type": "integer"
                 },
                 "id": {
                     "description": "ID is the unique identifier for the activity (PK)",
@@ -638,6 +703,10 @@ const docTemplate = `{
                 "laps": {
                     "description": "Number of pool laps",
                     "type": "integer"
+                },
+                "location_name": {
+                    "description": "Optional name for the location, e.g., \"CEPE\"",
+                    "type": "string"
                 },
                 "location_type": {
                     "description": "\"pool\" or \"open_water\"",
@@ -664,6 +733,23 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "entity.FeelingType": {
+            "type": "string",
+            "enum": [
+                "excellent",
+                "good",
+                "regular",
+                "tired",
+                "bad"
+            ],
+            "x-enum-varnames": [
+                "FeelingExcellent",
+                "FeelingGood",
+                "FeelingRegular",
+                "FeelingTired",
+                "FeelingBad"
+            ]
         },
         "entity.Interval": {
             "type": "object",
@@ -761,6 +847,7 @@ const docTemplate = `{
         "handler.CreateActivityRequest": {
             "type": "object",
             "required": [
+                "date",
                 "distance",
                 "duration",
                 "laps",
@@ -769,6 +856,10 @@ const docTemplate = `{
                 "user_id"
             ],
             "properties": {
+                "date": {
+                    "description": "Date in ISO 8601 format, e.g., \"2023-10-01\"",
+                    "type": "string"
+                },
                 "distance": {
                     "description": "Total distance in meters",
                     "type": "number"
@@ -777,9 +868,29 @@ const docTemplate = `{
                     "description": "Start time of the activity\nStart time.Time ` + "`" + `json:\"start\"` + "`" + ` // TODO - must implement format handling\nDuration of the activity in a string format, e.g., \"1h30m\"",
                     "type": "string"
                 },
+                "feeling": {
+                    "description": "Optional feeling after the swim, e.g., \"tired\"",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.FeelingType"
+                        }
+                    ]
+                },
+                "heart_rate_avg": {
+                    "description": "Average heart rate during the activity",
+                    "type": "integer"
+                },
+                "heart_rate_max": {
+                    "description": "Maximum heart rate during the activity",
+                    "type": "integer"
+                },
                 "laps": {
                     "description": "Number of pool laps",
                     "type": "integer"
+                },
+                "location_name": {
+                    "description": "Optional name for the location, e.g., \"CEPE\"",
+                    "type": "string"
                 },
                 "location_type": {
                     "description": "\"pool\" or \"open_water\"",

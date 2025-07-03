@@ -13,15 +13,21 @@ func MapActivityToEntity(activity domain.Activity, intervals []domain.Interval) 
 	}
 
 	return entity.Activity{
-		ID:           activity.ID,
-		UserID:       activity.UserID,
-		Start:        activity.Start,
-		Duration:     activity.Duration,
-		Distance:     activity.Distance,
-		Laps:         activity.Laps,
-		PoolSize:     activity.PoolSize,
-		LocationType: entity.LocationType(activity.LocationType),
-		Notes:        activity.Notes,
-		Intervals:    mappedIntervals,
+		ID:             activity.ID,
+		UserID:         activity.UserID,
+		Date:           activity.Date,
+		Start:          activity.Start,
+		Duration:       activity.Duration,
+		Distance:       activity.Distance,
+		Laps:           activity.Laps,
+		PoolSize:       activity.PoolSize,
+		LocationType:   entity.LocationType(activity.LocationType),
+		LocationName:   activity.LocationName,
+		Feeling:        entity.FeelingType(activity.Feeling),
+		HeartRateAvg:   activity.HeartRateAvg,
+		HeartRateMax:   activity.HeartRateMax,
+		AvgPacePer100m: activity.AvgPaceFormatted(),
+		Notes:          activity.Notes,
+		Intervals:      mappedIntervals,
 	}
 }

@@ -46,12 +46,17 @@ func createTables(db *sql.DB) {
 	CREATE TABLE IF NOT EXISTS activities (
 		id UUID PRIMARY KEY,
 		user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+		date TEXT NOT NULL,
 		start TIMESTAMP NOT NULL,
 		duration BIGINT NOT NULL,
 		distance FLOAT NOT NULL,
 		laps INTEGER NOT NULL,
 		pool_size FLOAT NOT NULL,
 		location_type TEXT NOT NULL CHECK (location_type IN ('pool', 'open_water')),
+		location_name TEXT,
+		feeling TEXT CHECK (feeling IN ('excellent', 'good', 'regular', 'tired', 'bad')),
+		heart_rate_avg INTEGER,
+		heart_rate_max INTEGER,
 		notes TEXT DEFAULT ''
 	);`
 
