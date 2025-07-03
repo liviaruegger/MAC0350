@@ -25,14 +25,12 @@ func NewIntervalRepository(db *sql.DB) *PostgresIntervalRepository {
 }
 
 func (r *PostgresIntervalRepository) CreateInterval(interval domain.Interval) error {
-	intervalID := uuid.New()
-
 	_, err := r.db.Exec(`
 		INSERT INTO intervals (
 			id, activity_id, duration, distance, type, stroke, notes
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		) VALUES ($1, $2, $3, $4, $5, $6, $7)
 	`,
-		intervalID,
+		interval.ID,
 		interval.ActivityID,
 		int64(interval.Duration.Seconds()),
 		interval.Distance,
