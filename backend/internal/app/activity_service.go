@@ -25,7 +25,10 @@ type activityService struct {
 
 // NewActivityService creates a new ActivityService
 func NewActivityService(r repository.ActivityRepository, intervalRepo repository.IntervalRepository) *activityService {
-	return &activityService{repo: r}
+	return &activityService{
+		repo:         r,
+		intervalRepo: intervalRepo,
+	}
 }
 
 func (s *activityService) CreateActivity(activity domain.Activity) error {

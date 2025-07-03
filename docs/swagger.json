@@ -10,6 +10,36 @@
     "basePath": "/",
     "paths": {
         "/activities": {
+            "get": {
+                "description": "Retrieves all swim activities in the system",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "activities"
+                ],
+                "summary": "Get all activities",
+                "responses": {
+                    "200": {
+                        "description": "List of all activities",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Activity"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Creates a swim activity for a specific user",
                 "consumes": [

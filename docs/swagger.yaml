@@ -323,6 +323,26 @@ info:
   version: "1.0"
 paths:
   /activities:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves all swim activities in the system
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of all activities
+          schema:
+            items:
+              $ref: '#/definitions/domain.Activity'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Get all activities
+      tags:
+      - activities
     post:
       consumes:
       - application/json

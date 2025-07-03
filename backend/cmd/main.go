@@ -49,6 +49,7 @@ func SetupRouter() *gin.Engine {
 
 	// Activity routes
 	router.POST("/activities", activityHandler.CreateActivity)
+	router.GET("/activities", activityHandler.GetAllActivities)
 	router.GET("/users/:id/activities", activityHandler.GetActivitiesByUser)
 
 	// Interval routes

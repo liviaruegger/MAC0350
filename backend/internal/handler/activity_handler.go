@@ -58,6 +58,24 @@ func (h *ActivityHandler) CreateActivity(c *gin.Context) {
 	c.IndentedJSON(http.StatusCreated, activity)
 }
 
+// GetAllActivities godoc
+// @Summary Get all activities
+// @Description Retrieves all swim activities in the system
+// @Tags activities
+// @Accept json
+// @Produce json
+// @Success 200 {array} domain.Activity "List of all activities"
+// @Failure 500 {object} ErrorResponse "Internal server error"
+// @Router /activities [get]
+func (h *ActivityHandler) GetAllActivities(c *gin.Context) {
+	activities, err := h.service.GetAllActivities()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "Failed to retrieve activities"})
+		return
+	}
+	c.JSON(http.StatusOK, activities)
+}
+
 // GetActivitiesByUser godoc
 // @Summary Get all activities of a user
 // @Description Retrieves all swim activities and their intervals for a given user ID

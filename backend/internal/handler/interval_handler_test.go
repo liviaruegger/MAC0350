@@ -26,6 +26,14 @@ func (m *MockIntervalService) CreateInterval(interval domain.Interval) error {
 	return args.Error(0)
 }
 
+func (m *MockIntervalService) GetIntervalsByActivity(activityID uuid.UUID) ([]domain.Interval, error) {
+	args := m.Called(activityID)
+	if raw := args.Get(0); raw != nil {
+		return raw.([]domain.Interval), args.Error(1)
+	}
+	return nil, args.Error(1)
+}
+
 func TestCreateInterval(t *testing.T) {
 	mockService := new(MockIntervalService)
 	handler := NewIntervalHandler(mockService)
