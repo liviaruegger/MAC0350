@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BarChart3, Settings, User, Waves, Plus } from 'lucide-react';
+import { BarChart3, Settings, User, Waves, Plus, History } from 'lucide-react';
 import Dashboard from './components/Dashboard';
 import AtividadeLog from './components/AtividadeLog';
 import Historico from './components/Historico';
@@ -12,7 +12,7 @@ const [activeTab, setActiveTab] = useState('dashboard');
 const navigation = [
 	{ id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
 	{ id: 'atividade-log', label: 'Adicionar Atividade', icon: Plus },
-	{ id: 'historico', label: 'Histórico', icon: Plus },
+	{ id: 'historico', label: 'Histórico', icon: History },
 	{ id: 'perfil', label: 'Perfil', icon: User },
 ];
 

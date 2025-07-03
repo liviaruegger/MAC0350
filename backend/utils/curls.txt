@@ -20,3 +20,94 @@ curl -X POST http://localhost:8080/intervals \
     "stroke": "freestyle",
     "notes": "Felt strong"
   }'
+
+
+
+{
+  "user_id": "9cdba1c6-9a50-464f-a892-3efd75090243",
+  "duration": "2h",
+  "distance": 3000,
+  "laps": 0,
+  "pool_size": 0,
+  "location_type": "open_water",
+  "notes": "Long distance practice in the lake. Water was a bit choppy."
+}
+
+curl -X 'POST' \
+  'http://localhost:8080/activities' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "user_id": "9cdba1c6-9a50-464f-a892-3efd75090243",
+  "duration": "2h",
+  "distance": 3000,
+  "laps": 0,
+  "pool_size": 0,
+  "location_type": "open_water",
+  "notes": "Long distance practice in the lake. Water was a bit choppy."
+}'
+
+curl -X POST http://localhost:8080/activities \
+  -H "Content-Type: application/json" \
+  -d '{
+    "user_id": "9cdba1c6-9a50-464f-a892-3efd75090243",
+    "duration": "2h",
+    "distance": 3000,
+    "laps": 0,
+    "pool_size": 0,
+    "location_type": "open_water",
+    "notes": "Long distance practice in the lake. Water was a bit choppy."
+  }'
+
+ curl -X POST http://localhost:8080/activities \
+  -H "Content-Type: application/json" \
+  -d '{
+    "user_id": "9cdba1c6-9a50-464f-a892-3efd75090243",
+    "duration": "1h15m",
+    "distance": 2500,
+    "laps": 100,
+    "pool_size": 25,
+    "location_type": "pool",
+    "notes": "First swim of the month. Felt strong."
+  }'
+
+ curl -X POST http://localhost:8080/activities \
+  -H "Content-Type: application/json" \
+  -d '{
+    "user_id": "9cdba1c6-9a50-464f-a892-3efd75090243",
+    "duration": "2h",
+    "distance": 3000,
+    "laps": 100,
+    "pool_size": 25,
+    "location_type": "open_water",
+    "notes": "Long distance practice in the lake. Water was a bit choppy. "
+  }'
+
+{
+  "user_id": "9cdba1c6-9a50-464f-a892-3efd75090243",
+  "duration": "55m",
+  "distance": 2000,
+  "laps": 40,
+  "pool_size": 50,
+  "location_type": "pool",
+  "notes": "Technique session: 400m warm-up, 1200m drills, 400m cool-down."
+}
+
+{
+  "distance": 1200,
+  "duration": "35m",
+  "laps": 48,
+  "location_type": "pool",
+  "notes": "Short but intense session. Focused on sprints."
+  "pool_size": 25,
+  "user_id": "98765432-10fe-dcba-9876-543210fedcba",
+}
+
+{
+  "activity_id": "3873fb42-cb58-4405-8443-4dd0e3bf21e6",
+  "distance": 400,
+  "duration": "8m",
+  "stroke": "freestyle",
+  "type": "warmup",
+  "notes": "Easy pace to get started."
+}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, Waves, MapPin, Thermometer, Heart, Filter, Search, TrendingUp } from 'lucide-react';
 
 interface Interval {
@@ -41,140 +41,53 @@ const Historico: React.FC = () => {
     const [selectedFeeling, setSelectedFeeling] = useState('all');
     const [sortBy, setSortBy] = useState('date');
     const [expandedActivities, setExpandedActivities] = useState<string[]>([]);
+    const [atividades, setAtividades] = useState<Activity[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    // Hardcoded activities data with interval notes
-    const atividades: Activity[] = [
-        {
-            id: '1',
-            date: '2024-01-15',
-            pool: 'Olympic Aquatic Center',
-            poolLength: 50,
-            duration: 60,
-            distance: 2400,
-            strokes: { freestyle: 1800, backstroke: 400, breaststroke: 200 },
-            intervals: [
-                { id: '', distance: 400, type: 'swim', stroke: 'freestyle', time: '6:20.00', rest: 60, notes: 'Warm-up felt good, focused on long strokes' },
-                { id: '', distance: 200, type: 'swim', stroke: 'backstroke', time: '3:45.00', rest: 45, notes: 'Working on rotation and catch' },
-                { id: '', distance: 100, type: 'swim', stroke: 'breaststroke', time: '1:52.00', rest: 30, notes: 'Timing felt off, need more practice' },
-                { id: '', distance: 400, type: 'swim', stroke: 'freestyle', time: '6:15.00', rest: 60, notes: 'Main set - held good pace, bilateral breathing' },
-                { id: '', distance: 200, type: 'swim', stroke: 'backstroke', time: '3:42.00', rest: 45, notes: 'Better rotation this set' },
-                { id: '', distance: 100, type: 'swim', stroke: 'breaststroke', time: '1:50.00', rest: 30, notes: 'Improved timing from previous set' },
-                { id: '', distance: 1000, type: 'swim', stroke: 'freestyle', time: '15:30.00', rest: 0, notes: 'Cool down - easy pace, focused on technique' }
-            ],
-            waterTemp: 26,
-            notes: 'Great technique session, focused on catch and pull. Felt strong throughout the main set.',
-            feeling: 'excelente',
-            heartRate: { avg: 145, max: 165 }
-        },
-        {
-            id: '2',
-            date: '2024-01-13',
-            pool: 'Local Community Pool',
-            poolLength: 25,
-            duration: 45,
-            distance: 1500,
-            strokes: { freestyle: 1200, kick: 300 },
-            intervals: [
-                { id: '', distance: 300, type: 'swim', stroke: 'freestyle', time: '5:30.00', rest: 45, notes: 'Easy warm-up, getting feel for water' },
-                { id: '', distance: 200, type: 'swim', stroke: 'kick', time: '4:20.00', rest: 30, notes: 'Flutter kick with board, steady rhythm' },
-                { id: '', distance: 400, type: 'swim', stroke: 'freestyle', time: '7:20.00', rest: 60, notes: 'Main set - moderate effort, felt smooth' },
-                { id: '', distance: 100, type: 'swim', stroke: 'kick', time: '2:15.00', rest: 30, notes: 'Dolphin kick practice, core engagement' },
-                { id: '', distance: 500, type: 'swim', stroke: 'freestyle', time: '9:10.00', rest: 0, notes: 'Cool down swim, very relaxed pace' }
-            ],
-            waterTemp: 28,
-            notes: 'Easy recovery swim, felt relaxed. Good for active recovery day.',
-            feeling: 'bem',
-            heartRate: { avg: 125, max: 140 }
-        },
-        {
-            id: '3',
-            date: '2024-01-11',
-            pool: 'University Pool',
-            poolLength: 25,
-            duration: 75,
-            distance: 3000,
-            strokes: { freestyle: 2400, butterfly: 200, medley: 400 },
-            intervals: [
-                { id: '', distance: 400, type: 'swim', stroke: 'freestyle', time: '6:40.00', rest: 60, notes: 'Warm-up with build to moderate pace' },
-                { id: '', distance: 50, type: 'swim', stroke: 'butterfly', time: '0:52.00', rest: 30, notes: 'Technique focus - dolphin kick timing' },
-                { id: '', distance: 100, type: 'swim', stroke: 'medley', time: '1:45.00', rest: 45, notes: 'All strokes feeling good today' },
-                { id: '', distance: 200, type: 'swim', stroke: 'freestyle', time: '3:15.00', rest: 30, notes: 'Building speed, heart rate climbing' },
-                { id: '', distance: 50, type: 'swim', stroke: 'butterfly', time: '0:50.00', rest: 30, notes: 'Better rhythm, less fatigue' },
-                { id: '', distance: 100, type: 'swim', stroke: 'medley', time: '1:42.00', rest: 45, notes: 'Smooth transitions between strokes' },
-                { id: '', distance: 800, type: 'swim', stroke: 'freestyle', time: '13:20.00', rest: 90, notes: 'Main set - pushed hard, maintained form' },
-                { id: '', distance: 50, type: 'swim', stroke: 'butterfly', time: '0:48.00', rest: 30, notes: 'Strong finish, good undulation' },
-                { id: '', distance: 100, type: 'swim', stroke: 'medley', time: '1:40.00', rest: 45, notes: 'Best medley time of the session' },
-                { id: '', distance: 50, type: 'swim', stroke: 'butterfly', time: '0:49.00', rest: 30, notes: 'Slight fatigue showing' },
-                { id: '', distance: 100, type: 'swim', stroke: 'medley', time: '1:41.00', rest: 45, notes: 'Consistent with previous set' },
-                { id: '', distance: 1000, type: 'swim', stroke: 'freestyle', time: '16:30.00', rest: 0, notes: 'Long cool down, very easy pace' }
-            ],
-            waterTemp: 25,
-            notes: 'Intense interval training, pushed hard on main set. Butterfly felt strong today.',
-            feeling: 'cansado',
-            heartRate: { avg: 155, max: 175 }
-        },
-        {
-            id: '4',
-            date: '2024-01-09',
-            pool: 'Outdoor Lake',
-            poolLength: 50,
-            duration: 40,
-            distance: 1500,
-            strokes: { freestyle: 1500 },
-            intervals: [
-                { id: '', distance: 1500, type: 'swim', stroke: 'freestyle', time: '28:30.00', rest: 0, notes: 'Open water swim - practiced sighting every 6 strokes, dealt with small waves' }
-            ],
-            waterTemp: 18,
-            notes: 'Open water swim, beautiful morning conditions. Sighting practice went well.',
-            feeling: 'bem',
-            heartRate: { avg: 140, max: 155 }
-        },
-        {
-            id: '5',
-            date: '2024-01-07',
-            pool: 'Olympic Aquatic Center',
-            poolLength: 50,
-            duration: 50,
-            distance: 2000,
-            strokes: { freestyle: 1400, backstroke: 600 },
-            intervals: [
-                { id: '', distance: 400, type: 'swim', stroke: 'freestyle', time: '6:30.00', rest: 60, notes: 'Gradual warm-up, focusing on catch' },
-                { id: '', distance: 200, type: 'swim', stroke: 'backstroke', time: '3:50.00', rest: 45, notes: 'Working on body rotation' },
-                { id: '', distance: 300, type: 'swim', stroke: 'freestyle', time: '4:45.00', rest: 45, notes: 'Building to race pace' },
-                { id: '', distance: 200, type: 'swim', stroke: 'backstroke', time: '3:48.00', rest: 45, notes: 'Better rotation, faster time' },
-                { id: '', distance: 300, type: 'swim', stroke: 'freestyle', time: '4:42.00', rest: 45, notes: 'Maintaining speed, good rhythm' },
-                { id: '', distance: 200, type: 'swim', stroke: 'backstroke', time: '3:45.00', rest: 45, notes: 'Best backstroke set of the day' },
-                { id: '', distance: 400, type: 'swim', stroke: 'freestyle', time: '6:25.00', rest: 0, notes: 'Cool down, easy and relaxed' }
-            ],
-            waterTemp: 26,
-            notes: 'Stroke technique focus. Worked on backstroke rotation and freestyle breathing.',
-            feeling: 'regular',
-            heartRate: { avg: 138, max: 158 }
-        },
-        {
-            id: '6',
-            date: '2024-01-05',
-            pool: 'Local Community Pool',
-            poolLength: 25,
-            duration: 35,
-            distance: 1200,
-            strokes: { breaststroke: 800, freestyle: 400 },
-            intervals: [
-                { id: '', distance: 200, type: 'swim', stroke: 'breaststroke', time: '4:20.00', rest: 45, notes: 'Warm-up breaststroke, working on timing' },
-                { id: '', distance: 100, type: 'swim', stroke: 'freestyle', time: '1:45.00', rest: 30, notes: 'Easy freestyle between breast sets' },
-                { id: '', distance: 200, type: 'swim', stroke: 'breaststroke', time: '4:15.00', rest: 45, notes: 'Better timing, longer glide phase' },
-                { id: '', distance: 100, type: 'swim', stroke: 'freestyle', time: '1:42.00', rest: 30, notes: 'Feeling more relaxed' },
-                { id: '', distance: 200, type: 'swim', stroke: 'breaststroke', time: '4:18.00', rest: 45, notes: 'Consistent pace, good kick' },
-                { id: '', distance: 100, type: 'swim', stroke: 'freestyle', time: '1:44.00', rest: 30, notes: 'Slight fatigue showing' },
-                { id: '', distance: 200, type: 'swim', stroke: 'breaststroke', time: '4:12.00', rest: 45, notes: 'Best time - everything clicked' },
-                { id: '', distance: 100, type: 'swim', stroke: 'freestyle', time: '1:40.00', rest: 0, notes: 'Strong finish to the workout' }
-            ],
-            waterTemp: 27,
-            notes: 'Breaststroke technique day. Focused on timing and glide phase.',
-            feeling: 'bem',
-            heartRate: { avg: 130, max: 145 }
-        }
-    ];
+    // Replace with actual user_id logic
+    const userId = '9cdba1c6-9a50-464f-a892-3efd75090243';
+
+    useEffect(() => {
+        const fetchActivities = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const response = await fetch(`http://localhost:8080/users/${userId}/activities`);
+                if (!response.ok) throw new Error('Erro ao buscar atividades');
+                const data = await response.json();
+                // Map API response to Activity[]
+                const mapped: Activity[] = (data.activities || []).map((a: any) => ({
+                    id: a.id, // Fine
+                    date: a.start ? a.start.split('T')[0] : '', // Align property name
+                    pool: a.location_type === 'pool' ? 'Piscina' : 'Aberto', // Decide if two properties or one
+                    poolLength: a.pool_size || 0, // Align property name
+                    duration: typeof a.duration === 'string' ? parseInt(a.duration) : a.duration, // Fine
+                    distance: a.distance, // Fine
+                    strokes: {}, // Undecided
+                    intervals: (a.intervals || []).map((i: any) => ({ // We won't store intervals inside Activity on db
+                        id: i.id,
+                        distance: i.distance,
+                        type: i.type,
+                        stroke: i.stroke,
+                        time: i.duration || '',
+                        rest: 0, // Not present in API, set to 0 or map if available
+                        notes: i.notes
+                    })),
+                    waterTemp: undefined, // Not present in API
+                    notes: a.notes || '', // Fine
+                    feeling: 'regular', // Not present in API, set default or map if available
+                    heartRate: undefined // Not present in API
+                }));
+                setAtividades(mapped);
+            } catch (err: any) {
+                setError(err.message || 'Erro desconhecido');
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchActivities();
+    }, [userId]);
 
     const feelingOptions = [
         { value: 'all', label: 'Todas as Sensações' },
@@ -244,6 +157,22 @@ const Historico: React.FC = () => {
             }
         });
     };
+
+    // Add loading and error UI
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-64">
+                <span className="text-slate-500 text-lg">Carregando atividades...</span>
+            </div>
+        );
+    }
+    if (error) {
+        return (
+            <div className="flex justify-center items-center h-64">
+                <span className="text-red-500 text-lg">{error}</span>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6">

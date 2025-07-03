@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Save, Clock, Waves, MapPin, Thermometer, Eye, Heart, Calendar } from 'lucide-react';
+import { Save, Waves, Calendar } from 'lucide-react';
 
 interface Interval {
     distance: number;
