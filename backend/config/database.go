@@ -39,7 +39,10 @@ func createTables(db *sql.DB) {
 		name TEXT NOT NULL,
 		email TEXT UNIQUE NOT NULL,
 		city TEXT NOT NULL,
-		phone TEXT NOT NULL
+		phone TEXT NOT NULL,
+		age INTEGER NOT NULL,
+		height INTEGER NOT NULL,
+		weight DOUBLE PRECISION NOT NULL
 	);`
 
 	activitiesTable := `

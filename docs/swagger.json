@@ -631,11 +631,17 @@
         "domain.User": {
             "type": "object",
             "properties": {
+                "age": {
+                    "type": "integer"
+                },
                 "city": {
                     "type": "string"
                 },
                 "email": {
                     "type": "string"
+                },
+                "height": {
+                    "type": "integer"
                 },
                 "id": {
                     "type": "string"
@@ -645,6 +651,9 @@
                 },
                 "phone": {
                     "type": "string"
+                },
+                "weight": {
+                    "type": "number"
                 }
             }
         },
@@ -961,17 +970,26 @@
                 "phone"
             ],
             "properties": {
+                "age": {
+                    "type": "integer"
+                },
                 "city": {
                     "type": "string"
                 },
                 "email": {
                     "type": "string"
                 },
+                "height": {
+                    "type": "integer"
+                },
                 "name": {
                     "type": "string"
                 },
                 "phone": {
                     "type": "string"
+                },
+                "weight": {
+                    "type": "number"
                 }
             }
         },

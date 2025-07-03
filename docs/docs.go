@@ -637,11 +637,17 @@ const docTemplate = `{
         "domain.User": {
             "type": "object",
             "properties": {
+                "age": {
+                    "type": "integer"
+                },
                 "city": {
                     "type": "string"
                 },
                 "email": {
                     "type": "string"
+                },
+                "height": {
+                    "type": "integer"
                 },
                 "id": {
                     "type": "string"
@@ -651,6 +657,9 @@ const docTemplate = `{
                 },
                 "phone": {
                     "type": "string"
+                },
+                "weight": {
+                    "type": "number"
                 }
             }
         },
@@ -967,17 +976,26 @@ const docTemplate = `{
                 "phone"
             ],
             "properties": {
+                "age": {
+                    "type": "integer"
+                },
                 "city": {
                     "type": "string"
                 },
                 "email": {
                     "type": "string"
                 },
+                "height": {
+                    "type": "integer"
+                },
                 "name": {
                     "type": "string"
                 },
                 "phone": {
                     "type": "string"
+                },
+                "weight": {
+                    "type": "number"
                 }
             }
         },
